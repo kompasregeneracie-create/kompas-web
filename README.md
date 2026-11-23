@@ -11,9 +11,11 @@ Zmenu povedz Claude, ten ju urobí v tomto repozitári. Po schválení sa nahrá
 
 ## Čo ešte chýba pred spustením
 
-- fotky (plná sála na Gáborovi, ďalšie z Gábora, Michal, prípadne minulé podujatia)
-- odkazy na registráciu (Posledný šaman, Gábor Maté o ADHD)
-- kontaktný mail, aj pre firmy
+- fotky (plná sála na Gáborovi, ďalšie z Gábora, Michal, prípadne minulé podujatia) a obrázok na zdieľanie 1200 × 630 px
+- odkazy na registráciu (Posledný šaman, Gábor Maté o ADHD); zatiaľ je pri nich „Registrácia čoskoro“
+- kontaktný mail a telefón, aj pre firmy
 - logo vo vysokom rozlíšení
-- odstrániť panel „Náhľad“ (len na kontrolu v prototype)
+- napojenie formulára na SmartEmailing
 - automatické nahrávanie na hosting (FTP údaje dodá Igor)
+
+Miesta na doplnenie sú v index.html označené komentármi REGISTRÁCIA, KONTAKT a og:image.
