@@ -60,6 +60,7 @@
   --krivka:cubic-bezier(.2,.65,.2,1);
 
   /* čas a obdobie: prepisujú sa nižšie cez html[data-cas], html[data-obdobie] */
+  --prechod:linear-gradient(90deg,#122b29 0%,#244a42 22%,#4a7a69 50%,#244a42 78%,#122b29 100%);
   --pozadie:#fffbf6;
   --ziara:rgba(255,230,219,.9);
   --ziara-x:50%;
@@ -148,6 +149,9 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
 .karta p{font-size:1rem;line-height:1.6}
 .karta .citat{font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.35}
 .mriezka{display:grid;gap:clamp(14px,2vw,22px);grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+
+/* tenký pás úplne hore, rovnaký prechod ako hlavný nadpis */
+.pasik-hore{height:6px;background:var(--prechod);position:relative;z-index:3}
 
 /* hlavička */
 .hlavicka{padding-block:20px}
@@ -242,6 +246,15 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
   -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent);mask-image:linear-gradient(to bottom,#000 55%,transparent);
 }
 .uvod h1{max-width:13ch;margin-inline:auto}
+/* nadpis s prechodom odtieňov: tmavé okraje, svetlejší stred */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .uvod h1{
+    background:var(--prechod);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+    padding-bottom:.08em;   /* aby sa spodné časti písmen (j, ľ) neorezali */
+  }
+}
+@media (forced-colors:active){.uvod h1{background:none;-webkit-text-fill-color:currentColor;color:CanvasText}}
 .uvod .tagline{font-family:var(--pismo-nadpis);font-style:italic;font-size:clamp(1.15rem,2.2vw,1.5rem);line-height:1.4;margin:26px auto 0;max-width:30ch;color:var(--salvia-text)}
 .uvod .uvodny{margin:22px auto 0;max-width:46ch}
 .uvod .tlacidla{justify-content:center}
@@ -426,6 +439,7 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
 </style>
 </head>
 <body>
+<div class="pasik-hore" aria-hidden="true"></div>
 <a class="preskoc" href="#obsah">Preskočiť na obsah</a>
 
 <!-- KOMPONENT: PODHUBIE · jediný canvas pre celú stránku, hneď za <body> -->
