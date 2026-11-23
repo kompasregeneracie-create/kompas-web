@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kompas Regenerácie – prototyp úvodnej stránky</title>
+<meta name="description" content="Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali.">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<!--
+  PROTOTYP ÚVODNEJ STRÁNKY · kompasregeneracie.sk · 16. 11. 2026
+  Jeden súbor: HTML, CSS, JS. Bez knižníc.
+  Živé komponenty sú v kóde oddelené komentármi "KOMPONENT: ...".
+  Alternatívy úvodnej vety (Michal môže vymeniť):
+    A (použitá ako nadpis): „Sme prepojení ako les. Len sme na to zabudli.“
+    B (použitá ako podnadpis): „Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali.“
+    C (použitá ako nadpis sekcie Prečo práve teraz): „V dobe umelej inteligencie veríme v rozvoj ľudského potenciálu.“
+  Miesta označené triedou .doplnit čakajú na údaj od Michala.
+-->
+<style>
+/* =========================================================
+   DIZAJNOVÝ SYSTÉM · farby, písma, rytmus
+   ========================================================= */
+:root{
+  --krem:#fffbf6;
+  --les:#183533;
+  --salvia:#8eaa93;
+  --salvia-text:#557359;      /* šalviová na malý text, kvôli kontrastu */
+  --salvia-jemna:#eef3ef;
+  --salvia-hlbsia:#dfe9e1;
+  --broskyna:#ffe6db;
+  --oranz:#ff9c00;
+  --piesok:#f6f2ea;
+  --biela:#ffffff;
+
+  --pismo-nadpis:"Blazface","Fraunces",Georgia,serif;
+  --pismo-text:"Sora","Inter",system-ui,sans-serif;
+
+  --r:20px;
+  --r-velky:28px;
+  --tien:0 1px 2px rgba(24,53,51,.04),0 10px 28px rgba(24,53,51,.07);
+
+  --dych:10s;                 /* jeden nádych a výdych */
+  --dych-posun:0ms;           /* nastaví JS, aby všetko dýchalo naraz */
+  --rast:1.1s;                /* rozvinutie sekcie */
+  --krivka:cubic-bezier(.2,.65,.2,1);
+
+  /* čas a obdobie: prepisujú sa nižšie cez html[data-cas], html[data-obdobie] */
+  --pozadie:#fffbf6;
+  --ziara:rgba(255,230,219,.9);
+  --ziara-x:50%;
+  --ziara-y:0%;
+  --vlakno:142,170,147;       /* farba vlákien podhubia (r,g,b) */
+  --vytrus:142,170,147;       /* farba výtrusov na koncoch vlákien */
+  --vlakno-sila:1;            /* priehľadnosť vlákien, zima je bledšia */
+}
+
+/* KOMPONENT: ČAS · svetlo podľa hodiny */
+html[data-cas="rano"]{--pozadie:#fffaf3;--ziara:rgba(255,230,219,.95);--ziara-x:12%;--ziara-y:92%}
+html[data-cas="den"]{--pozadie:#fffbf6;--ziara:rgba(142,170,147,.16);--ziara-x:50%;--ziara-y:-6%}
+html[data-cas="vecer"]{--pozadie:#fff6ec;--ziara:rgba(255,156,0,.2);--ziara-x:88%;--ziara-y:96%}
+html[data-cas="noc"]{--pozadie:#f5f0e7;--ziara:rgba(142,170,147,.3);--ziara-x:84%;--ziara-y:10%}
+/* KOMPONENT: ČAS · ročné obdobie */
+html[data-obdobie="jar"]{--vlakno:142,170,147;--vytrus:120,168,128}
+html[data-obdobie="leto"]{--vlakno:128,160,134;--vytrus:255,200,170}
+html[data-obdobie="jesen"]{--vlakno:142,170,147;--vytrus:255,156,0}
+html[data-obdobie="zima"]{--vlakno:160,180,166;--vytrus:255,251,246;--vlakno-sila:.8}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;position:relative;overflow-x:hidden;
+  background:var(--pozadie);color:var(--les);
+  font-family:var(--pismo-text);font-size:1.0625rem;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  transition:background-color 2.5s ease;
+}
+img,svg{max-width:100%}
+h1,h2,h3{font-family:var(--pismo-nadpis);font-weight:600;line-height:1.08;letter-spacing:-.015em;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.6rem,6.6vw,4.7rem);line-height:1.03}
+h2{font-size:clamp(1.9rem,4.4vw,3.1rem)}
+h3{font-size:clamp(1.25rem,2.2vw,1.5rem);line-height:1.2}
+p{margin:0 0 1.1em;max-width:62ch;text-wrap:pretty}
+p:last-child{margin-bottom:0}
+a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px;border-radius:6px}
+
+.preskoc{position:absolute;left:-999px;top:0;background:var(--les);color:var(--krem);padding:12px 18px;z-index:10;border-radius:0 0 12px 0}
+.preskoc:focus{left:0}
+
+.obal{max-width:1120px;margin-inline:auto;padding-inline:clamp(20px,5vw,40px);position:relative;z-index:2}
+.obal--uzky{max-width:800px}
+.sekcia{padding-block:clamp(40px,6vw,72px)}
+.tma{background:var(--les);color:var(--krem)}
+
+.stitok{
+  display:flex;align-items:center;gap:10px;margin:0 0 18px;
+  font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--salvia-text);
+}
+.tma .stitok{color:var(--salvia)}
+.uvodny{font-size:clamp(1.1rem,1.6vw,1.25rem);line-height:1.65}
+.hlava{margin-bottom:clamp(28px,4vw,48px)}
+.hlava h2{max-width:20ch}
+.hlava p{margin-top:20px}
+
+/* tlačidlá */
+.tl{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+  padding:13px 26px;border-radius:999px;border:1.5px solid transparent;
+  font:600 1rem/1.2 var(--pismo-text);text-decoration:none;cursor:pointer;
+  transition:transform .35s var(--krivka),background-color .35s,box-shadow .35s;
+}
+.tl:hover{transform:translateY(-2px)}
+.tl--hlavne{background:var(--oranz);color:var(--les);box-shadow:0 6px 20px rgba(255,156,0,.28)}
+.tl--druhe{border-color:currentColor;color:inherit;background:transparent}
+.tl--tmave{background:var(--les);color:var(--krem)}
+.tlacidla{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.odkaz{font-weight:600}
+.doplnit{
+  display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.02em;line-height:1.3;
+  border:1px dashed currentColor;border-radius:8px;padding:3px 9px;opacity:.8;margin-top:10px;
+}
+.cip{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--salvia-jemna);color:var(--les);border-radius:999px;padding:5px 12px}
+.tma .cip,.karta--tmava .cip{background:rgba(142,170,147,.22);color:var(--krem)}
+
+/* karty */
+.karta{background:var(--biela);border-radius:var(--r);padding:clamp(22px,3vw,30px);box-shadow:var(--tien)}
+.karta--salvia{background:var(--salvia-jemna);box-shadow:none}
+.karta--hlbsia{background:var(--salvia-hlbsia);box-shadow:none}
+.karta--tmava{background:var(--les);color:var(--krem);box-shadow:none}
+.karta--broskyna{background:var(--broskyna);box-shadow:none}
+.karta h3{margin-bottom:10px}
+.karta p{font-size:1rem;line-height:1.6}
+.karta .citat{font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.35}
+.mriezka{display:grid;gap:clamp(14px,2vw,22px);grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+
+/* hlavička */
+.hlavicka{padding-block:20px}
+.hlavicka .obal{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--pismo-nadpis);font-weight:700;font-size:1.12rem}
+.logo svg{width:34px;height:34px;flex:none}
+.menu{display:flex;gap:26px;font-size:.92rem;font-weight:600}
+.menu a{text-decoration:none;padding:8px 0}
+.menu a:hover{text-decoration:underline}
+@media (max-width:760px){.menu a:not(.menu__hlavny){display:none}}
+
+/* =========================================================
+   KOMPONENT: DYCH · jeden rytmus pre celý web
+   ========================================================= */
+@keyframes dych-jas{0%,100%{opacity:var(--dych-min,.78)}50%{opacity:1}}
+@keyframes dych-mierka{0%,100%{transform:scale(1)}50%{transform:scale(var(--dych-max,1.05))}}
+.dych-jas{animation:dych-jas var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun)}
+.dych-mierka{animation:dych-mierka var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun)}
+
+/* =========================================================
+   KOMPONENT: PODHUBIE · canvas pod obsahom
+   ========================================================= */
+#podhubie{position:absolute;left:0;top:0;width:100%;pointer-events:none;z-index:1;--dych-min:.8}
+.pas{height:clamp(90px,13vw,160px);position:relative}
+.pas--vysoky{height:clamp(120px,17vw,210px)}
+.uzol{
+  position:absolute;left:var(--x,50%);top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;z-index:2;
+  border-radius:50%;background:var(--salvia);box-shadow:0 0 0 6px rgba(142,170,147,.18);
+  transition:background-color 1.6s ease,box-shadow 1.6s ease;
+}
+.uzol.svieti{background:var(--oranz);box-shadow:0 0 0 7px rgba(255,156,0,.16),0 0 22px rgba(255,156,0,.4)}
+.tma .uzol{background:var(--salvia)}
+
+/* =========================================================
+   KOMPONENT: RAST · sekcie sa rozvinú ako papraď
+   ========================================================= */
+.paprad{width:22px;height:22px;flex:none;overflow:visible}
+.paprad path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  .js [data-rast]:not([data-rast="skupina"]),
+  .js [data-rast="skupina"]>*{
+    opacity:0;transform:translateY(22px) rotate(-.6deg);transform-origin:0 100%;
+    transition:opacity var(--rast) var(--krivka),transform var(--rast) var(--krivka);
+    transition-delay:calc(var(--i,0)*110ms);
+  }
+  .js [data-rast].vyrastene:not([data-rast="skupina"]),
+  .js [data-rast="skupina"].vyrastene>*{opacity:1;transform:none}
+  .js [data-rast="skupina"]>:nth-child(2){--i:1}
+  .js [data-rast="skupina"]>:nth-child(3){--i:2}
+  .js [data-rast="skupina"]>:nth-child(4){--i:3}
+  .js [data-rast="skupina"]>:nth-child(5){--i:4}
+  .js [data-rast="skupina"]>:nth-child(6){--i:5}
+  .js [data-rast] .paprad path{stroke-dashoffset:1;transition:stroke-dashoffset 2.2s var(--krivka) .2s}
+  .js [data-rast].vyrastene .paprad path{stroke-dashoffset:0}
+}
+
+/* =========================================================
+   KOMPONENT: FOTKA, KTORÁ SA NADÝCHNE
+   ========================================================= */
+.foto{position:relative;overflow:hidden;margin:0;border-radius:var(--r-velky);background:#27463f;aspect-ratio:var(--pomer,4/3)}
+.foto__obraz{
+  display:block;width:100%;height:100%;object-fit:cover;
+  /* zástupné miesto: Miško nahradí <div> prvkom <img class="foto__obraz"> */
+  background:
+    radial-gradient(120% 90% at 28% 105%,rgba(255,156,0,.42),transparent 60%),
+    radial-gradient(90% 80% at 82% 8%,rgba(255,230,219,.3),transparent 62%),
+    #2b4b44;
+}
+.foto__popis{
+  position:absolute;left:14px;bottom:14px;z-index:1;max-width:calc(100% - 28px);
+  font-size:.72rem;font-weight:600;letter-spacing:.04em;line-height:1.3;
+  color:var(--krem);background:rgba(24,53,51,.62);border:1px dashed rgba(255,251,246,.5);
+  padding:5px 10px;border-radius:8px;
+}
+@media (prefers-reduced-motion:no-preference){
+  .js .foto .foto__obraz{transition:transform 3.4s var(--krivka)}
+  .js .foto::after{content:"";position:absolute;inset:0;background:var(--les);opacity:.24;transition:opacity 3s ease;pointer-events:none}
+  .js .foto.nadych .foto__obraz{transform:scale(1.045)}
+  .js .foto.nadych::after{opacity:0}
+}
+
+/* =========================================================
+   1 · ÚVOD
+   ========================================================= */
+.uvod{position:relative;padding-block:clamp(28px,5vh,64px) clamp(16px,3vh,32px);text-align:center}
+.uvod::before{
+  content:"";position:absolute;inset:-140px 0 -60px;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 58% 62% at var(--ziara-x) var(--ziara-y),var(--ziara),transparent 70%);
+  animation:dych-jas var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun);--dych-min:.6;
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent);mask-image:linear-gradient(to bottom,#000 55%,transparent);
+}
+.uvod h1{max-width:13ch;margin-inline:auto}
+.uvod .tagline{font-family:var(--pismo-nadpis);font-style:italic;font-size:clamp(1.15rem,2.2vw,1.5rem);line-height:1.4;margin:26px auto 0;max-width:30ch;color:var(--salvia-text)}
+.uvod .uvodny{margin:22px auto 0;max-width:46ch}
+.uvod .tlacidla{justify-content:center}
+
+/* =========================================================
+   KOMPONENT: LES V REZE · stromy a ľudia na jednej zemi, pod ňou podhubie
+   ========================================================= */
+.les{position:relative;z-index:2}
+.les__scena{position:relative;height:clamp(310px,44vh,450px);height:clamp(310px,44svh,450px);
+  background:linear-gradient(to bottom,transparent 38%,var(--les) 38%)}   /* 38 % = čiara zeme */
+.les__scena canvas{position:absolute;inset:0;width:100%;height:100%}
+.les__popis{background:var(--les);color:var(--krem);text-align:center;padding:14px 24px clamp(36px,6vw,60px)}
+.les__popis .stitok{justify-content:center;color:var(--salvia);margin-bottom:12px;max-width:none}
+.les__popis p:not(.stitok){font-family:var(--pismo-nadpis);font-size:clamp(1.15rem,2.1vw,1.5rem);line-height:1.45;max-width:36ch;margin-inline:auto}
+.les__popis strong{font-weight:600;color:var(--broskyna)}
+@media (max-height:800px) and (min-width:900px){h1{font-size:3.7rem}}
+
+/* pásik Najbližšie v úvode */
+.najblizsie{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px;margin-top:28px;
+  padding:12px 20px;border-radius:999px;background:var(--biela);box-shadow:var(--tien);text-decoration:none;font-size:.95rem;line-height:1.35;
+  transition:transform .35s var(--krivka)}
+.najblizsie:hover{transform:translateY(-2px)}
+.najblizsie__stitok{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--salvia-text)}
+.najblizsie__akcia{font-weight:700}
+@media (max-width:520px){.najblizsie{border-radius:20px;flex-direction:column;gap:4px}}
+
+/* =========================================================
+   2 · OHEŇ · vieme zhromaždiť ľudí
+   ========================================================= */
+.ohen{padding-bottom:0}
+.foto--sala{--pomer:21/9;width:min(100% - 24px,1400px);margin:0 auto clamp(32px,5vw,56px);z-index:2}
+@media (max-width:760px){.foto--sala{--pomer:4/3}}
+.pribeh{display:grid;gap:clamp(24px,4vw,56px);grid-template-columns:1fr;align-items:end}
+@media (min-width:900px){.pribeh{grid-template-columns:1.15fr 1fr}}
+.cislo{font-family:var(--pismo-nadpis);font-weight:600;line-height:.92;letter-spacing:-.03em;display:block}
+.cislo--velke{font-size:clamp(4.4rem,15vw,9.5rem)}
+.cislo--male{font-size:clamp(2.1rem,5vw,3.4rem)}
+.cisla{display:flex;gap:clamp(24px,5vw,56px);margin-top:22px;padding-top:22px;border-top:1px solid rgba(255,251,246,.18)}
+.cisla span:last-child,.cislo-popis{display:block;font-size:.92rem;color:var(--salvia);margin-top:6px}
+.trojica{display:grid;gap:clamp(12px,2vw,20px);grid-template-columns:repeat(3,1fr);margin-top:clamp(28px,5vw,56px)}
+@media (max-width:640px){.trojica{grid-template-columns:1fr 1fr}.trojica .foto:first-child{grid-column:1/-1;--pomer:16/9}}
+.podnadpis{font-family:var(--pismo-nadpis);font-size:clamp(1.5rem,3vw,2.1rem);font-weight:600;margin:clamp(56px,8vw,96px) 0 clamp(20px,3vw,32px)}
+.ohne .karta{background:rgba(255,251,246,.06);border:1px solid rgba(255,251,246,.12);color:var(--krem);padding:0;overflow:hidden}
+.ohne .foto{border-radius:0;--pomer:3/2}
+.ohne .karta__telo{padding:20px 22px 24px}
+@media (max-width:700px){
+  /* na mobile sa galéria posúva prstom do strany, stránka je kratšia */
+  .ohne{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin-inline:-20px;padding:4px 20px 18px;scrollbar-width:thin}
+  .ohne .karta{flex:0 0 82%;scroll-snap-align:center}
+}
+.ohne .karta p{color:rgba(255,251,246,.86)}
+.ako{margin-top:clamp(56px,8vw,96px);display:grid;gap:24px;grid-template-columns:1fr}
+@media (min-width:900px){.ako{grid-template-columns:1fr 1.3fr;gap:56px}}
+.ako h3{font-size:clamp(1.5rem,3vw,2.1rem);max-width:16ch}
+
+/* KOMPONENT: OHEŇ · žiara a uhlíky */
+.ohnisko{position:relative;height:clamp(170px,24vw,280px);margin-top:clamp(24px,4vw,48px);overflow:hidden;
+  background:radial-gradient(ellipse 62% 105% at 50% 100%,rgba(255,156,0,.3),rgba(255,156,0,.08) 48%,transparent 72%)}
+.ohnisko::before{content:"";position:absolute;left:50%;bottom:-40%;width:min(70%,560px);aspect-ratio:2/1;transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 60%,rgba(255,200,150,.55),rgba(255,156,0,.22) 45%,transparent 70%);
+  animation:dych-jas var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun);--dych-min:.55}
+.ohnisko canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* =========================================================
+   3 · PRIPRAVUJEME
+   ========================================================= */
+.termin{font-family:var(--pismo-nadpis);font-size:clamp(1.7rem,3vw,2.2rem);font-weight:600;line-height:1;display:block;margin-bottom:6px}
+.termin-miesto{display:block;font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--salvia-text);margin-bottom:18px}
+.podujatie{display:flex;flex-direction:column}
+.podujatie .tl{margin-top:auto;align-self:flex-start}
+.podujatie p{margin-bottom:22px}
+
+/* =========================================================
+   4 · PREČO TO ROBÍME
+   ========================================================= */
+.preco{display:grid;gap:clamp(28px,5vw,64px);grid-template-columns:1fr}
+@media (min-width:900px){.preco{grid-template-columns:.8fr 1.2fr;align-items:start}.preco__foto{position:sticky;top:32px}}
+@media (max-width:899px){.preco__foto{order:2;max-width:420px}}
+.preco__foto .foto{--pomer:4/5}
+.podpis{margin-top:16px;font-size:.92rem;line-height:1.5}
+.podpis--cesta{margin-top:10px;color:var(--salvia-text)}
+.podpis strong{display:block;font-family:var(--pismo-nadpis);font-size:1.2rem}
+.citat{font-family:var(--pismo-nadpis);font-size:clamp(1.25rem,2.4vw,1.6rem);line-height:1.35;font-weight:500;margin:0}
+.preco .karta--broskyna{margin-top:32px}
+
+/* =========================================================
+   6 · STUPNE HĹBKY
+   ========================================================= */
+.stupne{display:grid;gap:16px;grid-template-columns:1fr;counter-reset:stupen;list-style:none;padding:0;margin:0}
+.stupne>li{display:flex;flex-direction:column}
+.stupne .poradie{font-family:var(--pismo-nadpis);font-style:italic;font-size:1.05rem;opacity:.75;margin-bottom:28px}
+.stupne .odkaz{margin-top:auto;padding-top:14px}
+.stupne ul{padding-left:1.1em;margin:0 0 1em;font-size:1rem;line-height:1.6}
+@media (min-width:980px){
+  .stupne{grid-template-columns:repeat(4,1fr);align-items:start}
+  .stupne>li:nth-child(2){margin-top:36px}
+  .stupne>li:nth-child(3){margin-top:72px}
+  .stupne>li:nth-child(4){margin-top:108px}
+  .stupne>li{min-height:340px}
+}
+
+/* =========================================================
+   7 · EKODEDINA · KOMPONENT: CESTA PO FÁZACH
+   ========================================================= */
+.dvojica{display:grid;gap:clamp(24px,4vw,56px);grid-template-columns:1fr}
+@media (min-width:900px){.dvojica{grid-template-columns:1fr 1fr}}
+.cesta{--faza:1;list-style:none;padding:0;margin:clamp(40px,6vw,64px) 0;position:relative;display:grid;gap:26px}
+.cesta[data-faza="2"]{--faza:2}.cesta[data-faza="3"]{--faza:3}.cesta[data-faza="4"]{--faza:4}.cesta[data-faza="5"]{--faza:5}
+.cesta::before,.cesta::after{content:"";position:absolute;left:10px;top:10px;width:2px;border-radius:2px}
+.cesta::before{bottom:10px;background:var(--salvia-hlbsia)}
+.cesta::after{height:calc((var(--faza) - .5)*20%);background:var(--les)}
+.cesta li{position:relative;padding-left:40px;font-size:.95rem;line-height:1.5}
+.cesta strong{display:block;font-family:var(--pismo-nadpis);font-size:1.2rem;line-height:1.2;margin-bottom:2px}
+.cesta__uzol{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--pozadie);border:2px solid var(--salvia);z-index:1}
+.cesta li>span:last-child{color:var(--salvia-text)}
+.cesta[data-faza="1"] li:nth-child(-n+1) .cesta__uzol,
+.cesta[data-faza="2"] li:nth-child(-n+2) .cesta__uzol,
+.cesta[data-faza="3"] li:nth-child(-n+3) .cesta__uzol,
+.cesta[data-faza="4"] li:nth-child(-n+4) .cesta__uzol,
+.cesta[data-faza="5"] li:nth-child(-n+5) .cesta__uzol{background:var(--les);border-color:var(--les)}
+.cesta[data-faza="1"] li:nth-child(1) .cesta__uzol,
+.cesta[data-faza="2"] li:nth-child(2) .cesta__uzol,
+.cesta[data-faza="3"] li:nth-child(3) .cesta__uzol,
+.cesta[data-faza="4"] li:nth-child(4) .cesta__uzol,
+.cesta[data-faza="5"] li:nth-child(5) .cesta__uzol{background:var(--oranz);border-color:var(--oranz);box-shadow:0 0 0 6px rgba(255,156,0,.18)}
+.cesta[data-faza="1"] li:nth-child(1) .cesta__uzol::after,
+.cesta[data-faza="2"] li:nth-child(2) .cesta__uzol::after,
+.cesta[data-faza="3"] li:nth-child(3) .cesta__uzol::after,
+.cesta[data-faza="4"] li:nth-child(4) .cesta__uzol::after,
+.cesta[data-faza="5"] li:nth-child(5) .cesta__uzol::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid rgba(255,156,0,.5);
+  animation:dych-mierka var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun);--dych-max:1.22}
+@media (min-width:900px){
+  .cesta{grid-template-columns:repeat(5,1fr);gap:18px}
+  .cesta::before,.cesta::after{left:10px;top:10px;height:2px;bottom:auto}
+  .cesta::before{right:10%;width:auto}
+  .cesta::after{width:calc((var(--faza) - .5)*20%)}
+  .cesta li{padding:38px 0 0}
+  .cesta li:nth-child(even){transform:translateY(10px)}
+}
+.blueprint{margin-top:clamp(36px,5vw,56px)}
+.blueprint h3{font-size:clamp(1.45rem,2.8vw,2rem);max-width:22ch;margin-bottom:16px}
+.blueprint .uvodny{max-width:60ch}
+.temy{list-style:none;padding:0;margin:6px 0 26px;display:flex;flex-wrap:wrap;gap:10px}
+.temy li{background:var(--salvia-jemna);border-radius:999px;padding:8px 16px;font-size:.92rem;font-weight:600;line-height:1.3}
+.clen{border-left:3px solid var(--salvia);padding-left:22px;margin:0}
+.clen footer{font-size:.9rem;color:var(--salvia-text);margin-top:10px}
+
+/* =========================================================
+   8 · KORENE
+   ========================================================= */
+.fakt{display:flex;flex-wrap:wrap;gap:clamp(20px,5vw,64px);margin-top:clamp(32px,5vw,56px);padding-top:28px;border-top:1px solid var(--salvia-hlbsia)}
+.fakt .cislo{font-size:clamp(2.2rem,5vw,3.4rem)}
+.fakt .cislo-popis{color:var(--salvia-text)}
+
+/* =========================================================
+   10 · SPOJME SA + pätička
+   ========================================================= */
+.spojme{padding-bottom:0}
+.formular{background:var(--krem);color:var(--les);border-radius:var(--r-velky);padding:clamp(22px,4vw,36px)}
+.formular label{display:block;font-size:.85rem;font-weight:600;margin:0 0 6px}
+.formular input[type=text],.formular input[type=email],.formular select{
+  width:100%;min-height:50px;padding:10px 14px;margin-bottom:16px;
+  font:400 1rem var(--pismo-text);color:var(--les);background:var(--biela);
+  border:1.5px solid rgba(24,53,51,.3);border-radius:12px;
+}
+.formular .suhlas{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:.92rem;line-height:1.45;margin:4px 0 20px}
+.formular .suhlas input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--les);flex:none}
+.formular__sprava{margin-top:14px;font-size:.92rem;font-weight:600}
+.partneri{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.partneri li{border:1px solid rgba(255,251,246,.25);border-radius:12px;padding:10px 16px;font-weight:600;font-size:.92rem}
+.paticka{margin-top:clamp(56px,8vw,96px);padding-block:32px 40px;border-top:1px solid rgba(255,251,246,.16);font-size:.9rem}
+.paticka .obal{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
+.paticka .tagline{font-family:var(--pismo-nadpis);font-style:italic;font-size:1.05rem;margin:0}
+.semienko{color:var(--salvia);margin:0;font-size:.82rem}
+
+/* náhľad pre Michala: len v prototype, na web nejde */
+.nahlad{position:fixed;right:14px;bottom:14px;z-index:20;font-size:.82rem}
+.nahlad summary{list-style:none;cursor:pointer;background:var(--les);color:var(--krem);padding:10px 16px;border-radius:999px;font-weight:600;box-shadow:var(--tien)}
+.nahlad summary::-webkit-details-marker{display:none}
+.nahlad[open] summary{border-radius:14px 14px 0 0}
+.nahlad__telo{background:var(--biela);color:var(--les);padding:14px 16px;border-radius:14px 0 14px 14px;box-shadow:var(--tien);width:230px}
+.nahlad label{display:block;font-weight:600;margin:8px 0 4px}
+.nahlad select,.nahlad button{width:100%;min-height:38px;font:inherit;border-radius:10px;border:1.5px solid rgba(24,53,51,.3);background:var(--biela);color:var(--les);padding:4px 8px}
+.nahlad button{margin-top:12px;font-weight:600;cursor:pointer}
+.nahlad small{display:block;margin-top:10px;line-height:1.4;color:var(--salvia-text)}
+.no-js-skry{display:none}
+.js .no-js-skry{display:revert}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<a class="preskoc" href="#obsah">Preskočiť na obsah</a>
+
+<!-- KOMPONENT: PODHUBIE · jediný canvas pre celú stránku, hneď za <body> -->
+<canvas id="podhubie" class="dych-jas" aria-hidden="true"></canvas>
+
+<header class="hlavicka" data-ticho>
+  <div class="obal">
+    <a class="logo" href="#" aria-label="Kompas Regenerácie, domov">
+      <!-- zástupná značka, Miško vloží originál loga -->
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M20 5l3.4 11.6L35 20l-11.6 3.4L20 35l-3.4-11.6L5 20l11.6-3.4z" fill="currentColor"/></svg>
+      Kompas Regenerácie
+    </a>
+    <nav class="menu" aria-label="Hlavné menu">
+      <a href="#pripravujeme">Podujatia</a>
+      <a href="#hlbka">Komunita</a>
+      <a href="#ekodedina">Ekodedina</a>
+      <a href="#firmy">Pre firmy</a>
+      <a class="menu__hlavny" href="#spojme-sa">Spojme sa</a>
+    </nav>
+  </div>
+</header>
+
+<main id="obsah">
+
+<!-- ===================== 1 · ÚVOD ===================== -->
+<section class="uvod" data-ticho aria-labelledby="n-uvod">
+  <div class="obal obal--uzky">
+    <h1 id="n-uvod">Sme prepojení ako les. Len sme na to zabudli.</h1>
+    <p class="tagline">Smerom k&nbsp;regeneratívnej budúcnosti a&nbsp;vnútornej rovnováhe.</p>
+    <p class="uvodny">Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali.</p>
+    <div class="tlacidla">
+      <a class="tl tl--hlavne" href="#pripravujeme">Príď na podujatie</a>
+      <a class="tl tl--druhe" href="#spojme-sa" data-tema="komunita">Pridaj sa ku komunite</a>
+    </div>
+    <!-- POZÝVAME · pásik s jedným hlavným podujatím; keď nič nie je v pláne, celý odstrániť -->
+    <a class="najblizsie" href="#">
+      <span class="najblizsie__stitok">Pozývame</span>
+      <span class="najblizsie__text"><strong>17. 12.</strong> Gábor Maté o ADHD, online</span>
+      <span class="najblizsie__akcia">Registrovať →</span>
+    </a>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:24%"></span></div>
+
+<!-- ===================== 3 · PRIPRAVUJEME ===================== -->
+<section class="sekcia" id="pripravujeme" aria-labelledby="n-pripravujeme">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Čo pripravujeme</p>
+      <h2 id="n-pripravujeme">Najbližšie podujatia. Príď medzi nás.</h2>
+    </div>
+    <div class="mriezka" data-rast="skupina">
+      <article class="karta podujatie">
+        <span class="termin">15. 12. 2026</span>
+        <span class="termin-miesto">Premietanie, diskusia, koncert</span>
+        <h3>Posledný šaman</h3>
+        <p>Večer s dokumentárnym filmom, po ktorom ostaneme spolu: diskusia s hosťami a koncert.</p>
+        <a class="tl tl--hlavne" href="#">Registrovať sa</a>
+        <span class="doplnit">doplní Michal: odkaz na registráciu</span>
+      </article>
+      <article class="karta podujatie">
+        <span class="termin">17. 12. 2026</span>
+        <span class="termin-miesto">Online</span>
+        <h3>Gábor Maté o ADHD: otázky a odpovede</h3>
+        <p>Gábor Maté odpovedá naživo na otázky o ADHD. Potom pokračujeme v kruhoch s praktikmi Compassionate Inquiry.</p>
+        <a class="tl tl--tmave" href="#">Registrovať sa</a>
+        <span class="doplnit">doplní Michal: odkaz na registráciu</span>
+      </article>
+      <article class="karta podujatie">
+        <span class="termin">Január 2027</span>
+        <span class="termin-miesto">Bratislava a Praha</span>
+        <h3>Traumality</h3>
+        <p>Premiéry dokumentárneho filmu v Bratislave a v Prahe.</p>
+        <a class="tl tl--tmave" href="#">Registrovať sa</a>
+        <span class="doplnit">doplní Michal: odkaz na registráciu</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:60%"></span></div>
+
+<!-- ===================== 2 · OHEŇ ===================== -->
+<section class="sekcia tma ohen" id="podujatia" data-tma aria-labelledby="n-ohen" style="padding-top:clamp(56px,8vw,96px)">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Vieme zhromaždiť ľudí</p>
+      <h2 id="n-ohen">Ľudia sa odjakživa stretávali pri ohni. Odtiaľ pochádzajú všetky podujatia.</h2>
+      <p class="uvodny">K tomuto pôvodu sa vraciame. Na našich podujatiach si odnesieš inšpiráciu, ako žiť zdravší a naplnenejší život, a stretneš ľudí, ktorí hľadajú to isté. Často až tam človek zistí, že v tom nie je sám.</p>
+    </div>
+  </div>
+
+  <figure class="foto foto--sala">
+    <div class="foto__obraz" role="img" aria-label="Plná sála na konferencii s Gáborom Matém, september 2024"></div>
+    <figcaption class="foto__popis">Fotka: plná sála, 1 800 ľudí</figcaption>
+  </figure>
+
+  <div class="obal">
+    <div class="pribeh" data-rast="skupina">
+      <div>
+        <p class="stitok">September 2024</p>
+        <span class="cislo cislo--velke">3 500</span>
+        <span class="cislo-popis">ľudí na jednej konferencii</span>
+        <div class="cisla">
+          <div><span class="cislo cislo--male">1 800</span><span>v sále</span></div>
+          <div><span class="cislo cislo--male">1 700</span><span>online</span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Trauma, choroby a&nbsp;liečenie v&nbsp;toxickej kultúre</h3>
+        <p style="margin-top:14px">Konferencia, na ktorej bol hlavným hosťom Gábor Maté. Ľudia prišli počúvať o traume a o liečení a našli tu jeden druhého.</p>
+        <p><a class="odkaz" href="https://kompasregeneracie.sk/gabor-mate/">Pozrieť záznam konferencie</a></p>
+      </div>
+    </div>
+
+    <div class="trojica">
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="Gábor Maté na pódiu"></div><figcaption class="foto__popis">Fotka: Gábor na pódiu</figcaption></figure>
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="Ľudia v rozhovore počas prestávky"></div><figcaption class="foto__popis">Fotka: ľudia v rozhovore</figcaption></figure>
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="Atmosféra v sále"></div><figcaption class="foto__popis">Fotka: atmosféra</figcaption></figure>
+    </div>
+
+    <h3 class="podnadpis" data-rast>Ďalšie podujatia, ktoré sme pripravili</h3>
+    <div class="mriezka ohne" data-rast="skupina" tabindex="0" role="group" aria-label="Ďalšie podujatia">
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Premietanie filmu o Stanislavovi Grofovi"></div><figcaption class="foto__popis">Fotka: turné Grof a Civilizácia</figcaption></figure>
+        <div class="karta__telo"><h3>Grof a Civilizácia</h3><p>Turné s filmom o životnom diele Stanislava Grofa a s filmom Civilizácia Petra Horkého a egyptológa Miroslava Bártu. Prednášky a diskusie s tvorcom, spolu okolo 800 ľudí.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Diskusia po filme Viliama Poltikoviča"></div><figcaption class="foto__popis">Fotka: Poltikovič</figcaption></figure>
+        <div class="karta__telo"><h3>Nový prístup k smrti</h3><p>Premietania filmu Viliama Poltikoviča o téme, ktorej sa bežne vyhýbame. Prišlo okolo 400 ľudí.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Hostia z kmeňa Huni Kuin"></div><figcaption class="foto__popis">Fotka: Huni Kuin</figcaption></figure>
+        <div class="karta__telo"><h3>Návšteva z Brazílie</h3><p>Film o návrate kmeňa Huni Kuin k pôvodnej kultúre a prednášky odborníkov z Česka a Slovenska. Hostili sme aj Cacique Álvara Tukana.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Účastníci desaťdňového kempu"></div><figcaption class="foto__popis">Fotka: kemp</figcaption></figure>
+        <div class="karta__telo"><h3>Desaťdňové kempy</h3><p>Desať dní spolu a jedna otázka: ako tvoriť udržateľnú spoločnosť.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Festival o mužsko-ženských vzťahoch"></div><figcaption class="foto__popis">Fotka: festival</figcaption></figure>
+        <div class="karta__telo"><h3>Päť ročníkov festivalu</h3><p>Festival venovaný liečeniu mužsko-ženských vzťahov sme pripravili päťkrát.</p></div>
+      </article>
+    </div>
+
+    <div class="ako" data-rast="skupina">
+      <h3>Priestor, kde má hlas každý</h3>
+      <div>
+        <p class="uvodny">Namiesto múru medzi lektorom a publikom tvoríme priestor, kde sa môže vyjadriť každý. Naše podujatia sú skôr komunitné stretnutia: spájajú ľudí so spoločným záujmom, aby si vymenili pohľady a spojili sily.</p>
+        <p>Ku každému podujatiu pripravujeme nadväzujúci program, aby sa inšpirácia premenila na trvalú zmenu.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KOMPONENT: OHEŇ -->
+  <div class="ohnisko" data-ohen aria-hidden="true"><canvas></canvas></div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:72%"></span></div>
+
+<!-- ===================== 4 · PREČO TO ROBÍME (+ kto za tým stojí) ===================== -->
+<section class="sekcia" id="preco" aria-labelledby="n-preco">
+  <div class="obal preco">
+    <div class="preco__foto" data-rast>
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="Michal Marguš, koordinátor Kompasu Regenerácie"></div><figcaption class="foto__popis">Fotka: Michal</figcaption></figure>
+      <p class="podpis"><strong>Michal Marguš</strong>koordinátor Kompasu Regenerácie. Žil v štyroch komunitách, robí podujatia a spája ľudí.</p>
+      <p class="podpis podpis--cesta">Viac ako desať rokov mení veci aj mimo sál. Pomáhal založiť iniciatívy Deti nepočkajú, ktorá zastavila novelu obmedzujúcu inovácie zdola v školstve, Nestrácajme čas, ktorá priniesla prvú klimatickú petíciu adresovanú vláde, a Stredoeurópske medzináboženské fórum.</p>
+    </div>
+    <div data-rast>
+      <p class="stitok">Prečo to robíme</p>
+      <h2 id="n-preco">Dá sa žiť tisíckrát lepšie. Zažil som to.</h2>
+      <p class="uvodny" style="margin-top:24px">Ľudia si neuvedomujú, akú obrovskú silu majú. Silu lásky, silu spolupráce.</p>
+      <p>Zažil som to v prvých komunitách svojho života. Boli sme v prírode, v pokoji, nikto sa nikam neponáhľal. Suroviny sme nakupovali vo veľkom, hrach, šošovicu, a jedlo pre desať ľudí vyšlo na pár eur. Varilo sa na dreve.</p>
+      <p>Nedialo sa tam nič špeciálne. Žiadne hippiesáctvo, obyčajná ľudská dobrota. Keď zo života zmizne to, čo nám robí stres, začne sa v človeku prebúdzať láskavosť, talent a chuť spolupracovať.</p>
+      <p>Neskôr sme viacerí bývali v jednom veľkom dome a spolu tvorili permakultúrnu záhradu. Zrazu to nebola práca, všetko bola zábava. Kto nebol kutil, priučil sa od tých, čo to vedeli lepšie.</p>
+      <p>V zdravom prostredí sa človek môže začať liečiť. A zistí, že je oveľa schopnejší a šikovnejší, než si myslel.</p>
+      <div class="karta karta--broskyna">
+        <p class="citat">Slovensko má na to unikátnu príležitosť. Sme moderná krajina a pritom skoro každý z nás má len generáciu či dve dozadu zážitok dediny a komunity.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:36%"></span></div>
+
+<!-- ===================== 5 · PREČO PRÁVE TERAZ ===================== -->
+<section class="sekcia" id="teraz" aria-labelledby="n-teraz">
+  <div class="obal obal--uzky" data-rast>
+    <p class="stitok">Prečo práve teraz</p>
+    <h2 id="n-teraz">V&nbsp;dobe umelej inteligencie veríme v&nbsp;rozvoj ľudského potenciálu.</h2>
+    <p class="uvodny" style="margin-top:24px">Ešte sme neobjavili, čo je skutočná ľudská a emočná inteligencia, a už ju odovzdávame strojom. Do toho klíma: žijeme v systéme, ktorý ničí prírodu, aj keď to nikto z nás nechce.</p>
+    <p>Pred rizikami umelej inteligencie varujú aj ľudia, ktorí ju sami vytvárali. Geoffrey Hinton, nositeľ Nobelovej ceny za fyziku, odišiel z Googlu, aby o nich mohol hovoriť slobodne. Mo Gawdat, bývalý obchodný riaditeľ Google X, vidí riešenie v komunitách a v zmene hodnôt.</p>
+    <p>Vidíme to rovnako. Komunity prirodzene liečia nás ľudí aj náš vzťah so zemou a s prírodou.</p>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:64%"></span></div>
+
+<!-- ===================== 6 · STUPNE HĹBKY ===================== -->
+<section class="sekcia" id="hlbka" aria-labelledby="n-hlbka">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Štyri stupne hĺbky</p>
+      <h2 id="n-hlbka">Každý si zvolí, ako hlboko chce ísť.</h2>
+    </div>
+    <ol class="stupne" data-rast="skupina">
+      <li class="karta">
+        <span class="poradie">prvý stupeň</span>
+        <h3>Príď na podujatie</h3>
+        <p>Podujatia, filmy s diskusiou, stretnutia. Miesto, kde zažiješ, že v tom nie si sám.</p>
+        <a class="odkaz" href="#pripravujeme">Najbližšie podujatia</a>
+      </li>
+      <li class="karta karta--salvia">
+        <span class="poradie">druhý stupeň</span>
+        <h3>Prepoj sa</h3>
+        <p>Mapa prepojenia je appka, v ktorej nájdeš zmysluplné prepojenia a spolupráce pre každodenný život.</p>
+        <p><span class="cip">Pripravujeme</span></p>
+        <p>Chystáme aj mesačný komunitný call a projektový inkubátor.</p>
+        <a class="odkaz" href="#spojme-sa" data-tema="komunita">Zapísať sa medzi záujemcov</a>
+      </li>
+      <li class="karta karta--hlbsia">
+        <span class="poradie">tretí stupeň</span>
+        <h3>Choď do hĺbky</h3>
+        <p>Vzdelávanie pre tých, ktorí si chcú osvojiť nové zručnosti.</p>
+        <ul>
+          <li><a href="https://kompasregeneracie.sk/telo-ako-kompas/">Telo ako kompas s Dorothe Trassl</a></li>
+          <li><a href="https://kompasregeneracie.sk/projekty/compassionate-inquiry/">Compassionate Inquiry</a></li>
+          <li><a href="#blueprint">Komunitný blueprint, vzdelávacie stretnutia</a></li>
+          <li>Kruhy <span class="cip">Pripravujeme</span></li>
+        </ul>
+        <a class="odkaz" href="#spojme-sa" data-tema="vzdelavanie">Chcem vedieť o kruhoch</a>
+      </li>
+      <li class="karta karta--tmava">
+        <span class="poradie">štvrtý stupeň</span>
+        <h3>Ži to</h3>
+        <p>Ekodedina a komunitné bývanie. Pre tých, ktorí chcú žiť komunitne naozaj.</p>
+        <a class="odkaz" href="#ekodedina">Cesta k ekodedine</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:30%"></span></div>
+
+<!-- ===================== 7 · EKODEDINA ===================== -->
+<section class="sekcia" id="ekodedina" aria-labelledby="n-ekodedina">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Ži to</p>
+      <h2 id="n-ekodedina">Tvoríme ekodedinu.</h2>
+    </div>
+    <div class="dvojica" data-rast="skupina">
+      <div>
+        <p class="uvodny">Túto víziu nosíme skoro desať rokov, od založenia spolku Kruh Zeme. Vieme, že spoločné veci sa väčšinou rozpadnú a každý si nakoniec ide svoje.</p>
+        <p>Preto tvoríme komunitný blueprint: návod od A po Z, ako komunitu založiť a udržať pri živote.</p>
+      </div>
+      <div>
+        <p>Skupina vznikla na prvom verejnom workshope a odvtedy sa nerozišla. Dnes ju drží stabilné jadro dvanástich ľudí, s ktorými kráčajú aj ich partneri.</p>
+        <blockquote class="clen">
+          <p class="citat">„Konečne tu niekto realizuje sen, ktorý mám už dlho.“</p>
+          <footer>člen skupiny</footer>
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- BLUEPRINT · témy sú štítky, Miško ich vo WordPresse pridá alebo uberie -->
+    <div class="karta blueprint" id="blueprint" data-rast>
+      <p class="stitok">Komunitný blueprint</p>
+      <h3>Návod od A po Z, ako postaviť komunitu aj dobrý život</h3>
+      <p class="uvodny">Už pol roka sa stretávame každé dva týždne a zakaždým spolu prejdeme jednu tému. Z toho vzniká návod, ktorý sa zíde každému, kto chce stavať off-grid statok alebo si zariadiť život zdravšie, aj keď v komunite žiť nechce.</p>
+      <ul class="temy">
+        <li>Pôda a jej dizajn</li>
+        <li>Slama, hlina, konopný betón, drevostavby</li>
+        <li>Sociokracia, holokracia, konsent</li>
+        <li>Vzťahy a riešenie konfliktov</li>
+        <li>Sebestačnosť v potravinách, energii a financiách</li>
+        <li>Biznis plán</li>
+      </ul>
+      <a class="tl tl--tmave" href="#spojme-sa" data-tema="vzdelavanie">Prísť na vzdelávacie stretnutie</a>
+    </div>
+
+    <!-- KOMPONENT: CESTA · aktuálnu fázu prepne Miško číslom v data-faza (1 až 5) -->
+    <ol class="cesta" data-faza="1" data-rast="skupina" aria-label="Cesta k ekodedine po fázach">
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Základ skupiny</strong><span>Dnes sme tu. Hľadáme pozemok.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Pozemok</strong><span>Miesto, kde to celé zakorení.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Miesto pripravené</strong><span>Projekt, siete, prvé stavby.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Prvá sezóna</strong><span>Prvý rok spoločného života.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Život komunity</strong><span>Dedina žije a pomáha vzniknúť ďalším.</span></li>
+    </ol>
+
+    <div class="karta karta--salvia" data-rast>
+      <h3>Pridať sa môže ktokoľvek. Stačí hodina do&nbsp;týždňa.</h3>
+      <p>Každý daruje jednu hodinu týždenne a prácu si medzi sebou delíme. Môžeš prísť do vnútornej skupiny alebo len na vzdelávacie stretnutia.</p>
+      <div class="tlacidla">
+        <a class="tl tl--tmave" href="#spojme-sa" data-tema="komunita">Prihlásiť sa na úvodný call</a>
+        <a class="tl tl--druhe" href="#spojme-sa" data-tema="pozemok">Poslať tip na pozemok</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:40%"></span></div>
+
+<!-- ===================== 9 · FIRMY A PODPOROVATELIA ===================== -->
+<section class="sekcia" id="firmy" aria-labelledby="n-firmy">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Pre firmy a podporovateľov</p>
+      <h2 id="n-firmy">Firma je tvorivý subjekt. Hľadáme spolutvorcov.</h2>
+    </div>
+    <div class="mriezka" data-rast="skupina">
+      <article class="karta">
+        <h3>Sieť firiem, ktoré si pomáhajú</h3>
+        <p>Veríme, že v spolupráci je sila. Keď si firmy s podobnými hodnotami pomáhajú, môžu znížiť náklady, deliť sa o skúsenosti a otvárať si dvere. Získa firma, jej partneri aj ľudia okolo nich.</p>
+        <p>Takúto sieť partnerov postupne tvoríme. Prvé spolupráce vznikajú pri podujatiach, komunitnom blueprinte a ekodedine.</p>
+        <a class="odkaz" href="#spojme-sa" data-tema="firma">Pridať sa do siete</a>
+        <br><span class="doplnit">doplní Michal: kontaktný mail pre firmy</span>
+      </article>
+      <article class="karta">
+        <h3>Podujatie na mieru</h3>
+        <p>Pre partnerov navrhujeme a realizujeme transformačné podujatia od konceptu po realizáciu: produkcia, pódium, technika, rečníci, dobrovoľníci aj kampaň.</p>
+        <a class="odkaz" href="#spojme-sa" data-tema="firma">Porozprávajme sa</a>
+      </article>
+      <article class="karta karta--salvia">
+        <h3>2 % z dane</h3>
+        <p>Podporiť nás môžeš aj dvoma percentami z dane. Nič ťa to nestojí a pomôže to ďalším podujatiam.</p>
+        <a class="odkaz" href="https://kompasregeneracie.sk/podporte-nas/">Ako darovať 2 %</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="pas pas--vysoky" aria-hidden="true"><span class="uzol dych-jas" style="--x:50%"></span></div>
+
+<!-- ===================== 10 · SPOJME SA ===================== -->
+<section class="sekcia tma spojme" id="spojme-sa" data-tma aria-labelledby="n-spojme">
+  <div class="obal dvojica">
+    <div data-rast>
+      <p class="stitok">Spojme sa</p>
+      <h2 id="n-spojme">Čo práve riešiš?</h2>
+      <p class="uvodny" style="margin-top:24px">Napíš nám pár slov. Ozveme sa a nájdeme miesto, kde sa naše cesty stretnú.</p>
+      <p>Alebo sa pridaj k približne 5 000 ľuďom, ktorí čítajú náš newsletter.</p>
+      <p>Kontakt: <span class="doplnit">doplní Michal: e-mail a telefón</span></p>
+    </div>
+    <!-- Miško napojí formulár vo WordPresse, polia ostávajú -->
+    <form class="formular" id="formular" action="#" method="post" data-rast>
+      <label for="f-meno">Meno</label>
+      <input id="f-meno" name="meno" type="text" autocomplete="name" required>
+      <label for="f-mail">E-mail</label>
+      <input id="f-mail" name="email" type="email" autocomplete="email" required>
+      <label for="f-tema">Čo ťa zaujíma</label>
+      <select id="f-tema" name="tema">
+        <option value="podujatia">Podujatia</option>
+        <option value="komunita">Komunita a ekodedina</option>
+        <option value="vzdelavanie">Vzdelávanie</option>
+        <option value="firma">Som firma</option>
+        <option value="pozemok">Mám pozemok</option>
+        <option value="ine">Iné</option>
+      </select>
+      <label class="suhlas"><input type="checkbox" name="newsletter" value="1"> Chcem dostávať newsletter Kompasu Regenerácie.</label>
+      <button class="tl tl--hlavne" type="submit">Odoslať</button>
+      <p class="formular__sprava" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <footer class="paticka">
+    <div class="obal">
+      <a class="logo" href="#">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M20 5l3.4 11.6L35 20l-11.6 3.4L20 35l-3.4-11.6L5 20l11.6-3.4z" fill="currentColor"/></svg>
+        Kompas Regenerácie
+      </a>
+      <p class="tagline">Smerom k&nbsp;regeneratívnej budúcnosti a&nbsp;vnútornej rovnováhe.</p>
+      <p class="semienko no-js-skry">Tento les vyrástol zo semienka <span data-semienko>…</span>.</p>
+    </div>
+  </footer>
+</section>
+
+</main>
+
+<!-- NÁHĽAD PRE MICHALA · len v prototype, na web nejde -->
+<details class="nahlad no-js-skry">
+  <summary>Náhľad</summary>
+  <div class="nahlad__telo">
+    <label for="n-cas">Čas dňa</label>
+    <select id="n-cas"><option value="">podľa hodín</option><option value="rano">ráno</option><option value="den">deň</option><option value="vecer">večer</option><option value="noc">noc</option></select>
+    <label for="n-obdobie">Ročné obdobie</label>
+    <select id="n-obdobie"><option value="">podľa dátumu</option><option value="jar">jar</option><option value="leto">leto</option><option value="jesen">jeseň</option><option value="zima">zima</option></select>
+    <button type="button" id="n-semienko">Nové semienko</button>
+    <small>Tento panel je len v prototype. Ukazuje, ako sa web mení počas dňa a roka.</small>
+  </div>
+</details>
+
+<script>
+/* =========================================================
+   KOMPONENT: JADRO · semienko, čas, dych
+   Vložiť raz, pred ostatné komponenty.
+   ========================================================= */
+(function(){
+  var K = window.Kompas = window.Kompas || {};
+  var koren = document.documentElement;
+
+  K.menejPohybu = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // semienko: pri každej návšteve iné
+  K.semienko = Math.floor(Math.random()*90000)+10000;
+  K.nahoda = function(semienko){           // mulberry32
+    var a = semienko>>>0;
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a>>>15, 1 | a);
+      t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+      return ((t ^ t>>>14)>>>0)/4294967296;
+    };
+  };
+  K.ukazSemienko = function(){
+    var el = document.querySelectorAll('[data-semienko]');
+    for(var i=0;i<el.length;i++) el[i].textContent = K.semienko;
+  };
+
+  // čas a ročné obdobie podľa hodín návštevníka
+  // hranice: [ráno od, deň od, večer od, noc od]
+  var HRANICE = {zima:[7,10,15,18], jar:[6,10,17,20], leto:[5,10,19,22], jesen:[6,10,16,19]};
+  K.nastavCas = function(cas, obdobie){
+    var d = new Date(), m = d.getMonth(), h = d.getHours();
+    var o = obdobie || (m<2||m===11 ? 'zima' : m<5 ? 'jar' : m<8 ? 'leto' : 'jesen');
+    var hr = HRANICE[o];
+    var c = cas || (h<hr[0]||h>=hr[3] ? 'noc' : h<hr[1] ? 'rano' : h<hr[2] ? 'den' : 'vecer');
+    koren.setAttribute('data-cas', c);
+    koren.setAttribute('data-obdobie', o);
+    if(K.podhubie) K.podhubie.prefarbi();
+  };
+  K.nastavCas();
+  setInterval(function(){ if(!K.rucnyCas) K.nastavCas(); }, 10*60*1000);
+
+  // dych: všetky animácie sa zosynchronizujú s hodinami, aj medzi komponentmi
+  koren.style.setProperty('--dych-posun', -(Date.now()%10000)+'ms');
+
+  document.addEventListener('DOMContentLoaded', K.ukazSemienko);
+})();
+
+/* =========================================================
+   KOMPONENT: PODHUBIE
+   Potrebuje: <canvas id="podhubie"> hneď za <body>, JADRO.
+   Vlákna rastú len tam, kde nie je text (mimo .obal a [data-ticho]).
+   ========================================================= */
+(function(){
+  var K = window.Kompas;
+  var platno = document.getElementById('podhubie');
+  if(!platno || !platno.getContext) return;
+  var ctx = platno.getContext('2d');
+
+  var NASTAVENIA = {
+    krok: 7,              // dĺžka jedného článku vlákna v px
+    rychlostRastu: 300,   // px za sekundu
+    hustota: 1,           // 0.5 redšie, 1.5 hustejšie
+    dosahDotyku: 130,     // px okolo kurzora alebo prsta
+    silaDotyku: 24,       // o koľko px vlákna uhnú
+    maxBodov: 60000
+  };
+  if(platno.dataset.hustota) NASTAVENIA.hustota = parseFloat(platno.dataset.hustota);
+
+  var W=0, H=0, vh=0, dpr=1, vrch=0, vyska=0;
+  var ticho=[], tmave=[], stromy=[], vlakna=[], poStyle=[];
+  var raf=0, vynut=true, prvy=true;
+  var farby=null;
+  var dotyk={x:-9999,y:-9999,sila:0,ciel:0,cas:0,cx:-9999,cy:-9999};
+
+  function meraj(){
+    var sy = window.pageYOffset;
+    W = document.documentElement.clientWidth;
+    H = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    vh = window.innerHeight;
+    ticho = [];
+    var el = document.querySelectorAll('.obal,[data-ticho]');
+    for(var i=0;i<el.length;i++){
+      var r = el[i].getBoundingClientRect(), cs = getComputedStyle(el[i]);
+      var pl = parseFloat(cs.paddingLeft)||0, pr = parseFloat(cs.paddingRight)||0;
+      ticho.push({x0:r.left+pl-12, x1:r.right-pr+12, y0:r.top+sy-26, y1:r.bottom+sy+26});
+    }
+    tmave = [];
+    el = document.querySelectorAll('[data-tma]');
+    for(i=0;i<el.length;i++){ r = el[i].getBoundingClientRect(); tmave.push({y0:r.top+sy, y1:r.bottom+sy}); }
+  }
+  function volno(x,y){
+    if(x<2||x>W-2||y<2||y>H-2) return false;
+    for(var i=0;i<ticho.length;i++){ var t=ticho[i]; if(y>t.y0&&y<t.y1&&x>t.x0&&x<t.x1) return false; }
+    return true;
+  }
+  function jeTma(y){
+    for(var i=0;i<tmave.length;i++){ if(y>=tmave[i].y0&&y<tmave[i].y1) return 1; }
+    return 0;
+  }
+
+  function generuj(){
+    meraj();
+    var rnd = K.nahoda(K.semienko);
+    var krok = NASTAVENIA.krok, maly = W<760;
+    var hust = NASTAVENIA.hustota*(maly?0.7:1);
+    stromy=[]; vlakna=[]; poStyle=[[],[],[],[],[],[],[],[]];
+    var bodov=0, rad=[];
+
+    function zasad(x,y,uhly){
+      if(!volno(x,y)) return;
+      var s = stromy.length; stromy.push({y:y, start:-1});
+      for(var i=0;i<uhly.length;i++){
+        var hl=y/H;
+        rad.push({x:x,y:y,a:uhly[i],gen:0,d:0,zost:(260+rnd()*380)*(0.85+hl*hl*0.6),s:s});
+      }
+    }
+    // 1) okraje stránky: smerom dole hustnú
+    for(var y=40;y<H-20;y+=90){
+      var hl=y/H, p=(0.13+hl*hl*hl*0.34)*hust;
+      if(rnd()<p) zasad(3+rnd()*5, y+rnd()*80, [0.25+rnd()*0.9]);
+      if(rnd()<p) zasad(W-3-rnd()*5, y+rnd()*80, [Math.PI-0.25-rnd()*0.9]);
+    }
+    // 2) pásy medzi sekciami a ich uzly
+    var pasy = document.querySelectorAll('.pas'), sy=window.pageYOffset;
+    for(var i=0;i<pasy.length;i++){
+      var r = pasy[i].getBoundingClientRect(), y0=r.top+sy, hp=r.height, hl2=y0/H;
+      var uz = pasy[i].querySelector('.uzol');
+      if(uz){
+        var ur = uz.getBoundingClientRect(), n=4+Math.floor(rnd()*3), uhly=[], z=rnd()*6.28;
+        for(var j=0;j<n;j++) uhly.push(z+j*6.283/n+(rnd()-.5)*0.5);
+        zasad(ur.left+ur.width/2, ur.top+sy+ur.height/2, uhly);
+      }
+      var pocet = Math.round((1+hl2*hl2*2.6)*hust);
+      for(j=0;j<pocet;j++) zasad(20+rnd()*(W-40), y0+hp*(0.2+rnd()*0.6), [rnd()*6.283]);
+    }
+
+    function nove(x,y,d,sirka,tma,s){
+      var v = {pts:[x,y], d0:d, w:sirka, tma:tma, s:s, hrot:false, y0:y, y1:y, vytrus:0};
+      vlakna.push(v); poStyle[tma*4+sirka].push(v);
+      return v;
+    }
+    // rast do šírky: staršie vetvy najprv
+    while(rad.length && bodov<NASTAVENIA.maxBodov){
+      var t = rad.shift();
+      var x=t.x, y2=t.y, a=t.a, d=t.d, zost=t.zost, gen=t.gen, om=0;
+      var hl3 = y2/H;
+      var sirka = gen===0 ? (hl3>0.7?3:2) : gen===1 ? 1 : 0;
+      var v = nove(x,y2,d,sirka,jeTma(y2),t.s);
+      while(zost>0){
+        hl3 = y2/H;
+        om = om*0.8 + (rnd()-.5)*(gen?0.17:0.11);   // zotrvačnosť: vlákno sa vlní plynulo
+        a += om;
+        if(gen===0) a += Math.sin(Math.PI/2-a)*0.028*(0.4+hl3*2.2);     // ťah nadol, v hĺbke silnejší
+        var nx=x+Math.cos(a)*krok, ny=y2+Math.sin(a)*krok;
+        if(!volno(nx,ny)){
+          if(rnd()<0.55) break;                       // pri texte vlákno väčšinou skončí, neobkresľuje ho
+          var ok=false, st2=rnd()<.5?1:-1, skus=[1.1*st2,-1.1*st2,1.9*st2,-1.9*st2,2.6,3.14];
+          for(var q=0;q<6;q++){
+            var b=a+skus[q]; nx=x+Math.cos(b)*krok; ny=y2+Math.sin(b)*krok;
+            if(volno(nx,ny)){ a=b; om=0; ok=true; break; }
+          }
+          if(!ok) break;
+        }
+        var tm = jeTma(ny);
+        if(tm!==v.tma){ v = nove(x,y2,d,sirka,tm,t.s); }
+        x=nx; y2=ny; d+=krok; zost-=krok; bodov++;
+        v.pts.push(x,y2);
+        if(y2<v.y0) v.y0=y2; if(y2>v.y1) v.y1=y2;
+        if(gen<3 && rnd()<(gen===0?0.075:gen===1?0.07:0.1)*(0.75+hl3*hl3*0.7)*Math.min(hust,1.3)){
+          // jemné rozvetvenie až po tenké chĺpky: tak vyzerá podhubie
+          rad.push({x:x,y:y2,a:a+(rnd()<.5?-1:1)*(0.45+rnd()*0.75),gen:gen+1,d:d,
+            zost:gen===0?(90+rnd()*200):gen===1?(28+rnd()*80):(10+rnd()*26), s:t.s});
+        }
+      }
+      v.hrot = true;
+      v.vytrus = rnd()<0.42 ? 1.1+rnd()*1.5 : 0;
+    }
+    for(i=0;i<vlakna.length;i++) vlakna[i].dlzka = (vlakna[i].pts.length/2-1)*krok;
+  }
+
+  function nacitajFarby(){
+    var cs = getComputedStyle(document.documentElement);
+    var vl = (cs.getPropertyValue('--vlakno')||'142,170,147').trim();
+    var vy = (cs.getPropertyValue('--vytrus')||'142,170,147').trim();
+    var s = parseFloat(cs.getPropertyValue('--vlakno-sila'))||1;
+    farby = {
+      ciara: [
+        'rgba('+vl+','+(0.6*s)+')', 'rgba('+vl+','+(0.9*s)+')', 'rgba(98,130,106,'+(0.8*s)+')', 'rgba(24,53,51,'+(0.36*s)+')',
+        'rgba('+vl+','+(0.3*s)+')', 'rgba('+vl+','+(0.5*s)+')', 'rgba('+vl+','+(0.7*s)+')', 'rgba('+vl+','+(0.9*s)+')'
+      ],
+      hrubka: [0.75,1.1,1.6,2.6, 0.75,1.1,1.6,2.6],
+      vytrus: 'rgba('+vy+',.9)',
+      vytrusTma: 'rgba('+vy+',.75)'
+    };
+  }
+
+  function rozmer(){
+    dpr = Math.min(window.devicePixelRatio||1, W<800?2:1.5);
+    vyska = Math.min(Math.round(vh*1.9), H);
+    platno.width = Math.round(W*dpr);
+    platno.height = Math.round(vyska*dpr);
+    platno.style.height = vyska+'px';
+    vrch = -1;
+  }
+  function umiestni(sy){
+    if(vrch<0 || sy<vrch+30 && vrch>0 || sy+vh>vrch+vyska-30 && vrch+vyska<H){
+      vrch = Math.max(0, Math.min(H-vyska, Math.round(sy-(vyska-vh)/2)));
+      platno.style.transform = 'translate3d(0,'+vrch+'px,0)';
+      return true;
+    }
+    return false;
+  }
+
+  function kresli(teraz){
+    raf = 0;
+    if(!poStyle.length) return;            // les ešte nie je zasadený
+    if(!farby) nacitajFarby();
+    var sy = window.pageYOffset, i, j;
+    var posun = umiestni(sy);
+    var rastie = false;
+
+    // stromy začnú rásť, keď sa k nim návštevník priblíži
+    var hranica = sy+vh*0.94;
+    for(i=0;i<stromy.length;i++){
+      var st = stromy[i];
+      if(st.start===-1 && st.y<hranica){
+        if(K.menejPohybu || st.y<sy-60 && !prvy){ st.start = -1e9; st.hotovo = true; }
+        else st.start = teraz + (prvy ? 250+Math.random()*900 : Math.random()*250);
+      }
+    }
+    prvy = false;
+
+    // dotyk: sila pomaly doznieva
+    if(dotyk.ciel && teraz-dotyk.cas>700) dotyk.ciel = 0;
+    dotyk.sila += (dotyk.ciel-dotyk.sila)*0.1;
+    dotyk.cx += (dotyk.x-dotyk.cx)*0.25; dotyk.cy += (dotyk.y-dotyk.cy)*0.25;
+    var aktivny = dotyk.sila>0.012;
+    if(!aktivny && !dotyk.ciel) dotyk.sila = 0;
+
+    var y0 = vrch-20, y1 = vrch+vyska+20;
+    var krok = NASTAVENIA.krok, R = NASTAVENIA.dosahDotyku, R2=R*R, F=NASTAVENIA.silaDotyku*dotyk.sila;
+    var px = dotyk.cx, py = dotyk.cy;
+    var bodky=[[],[]];
+
+    // najprv zistíme, či sa niečo mení; ak nie, neprekresľujeme
+    if(!posun && !vynut && !aktivny){
+      var zmena=false;
+      for(i=0;i<stromy.length;i++){ st=stromy[i]; if(st.start>0 && st.y>y0-900 && st.y<y1+200 && !st.hotovo){ zmena=true; break; } }
+      if(!zmena) return;
+    }
+    vynut = false;
+
+    ctx.setTransform(dpr,0,0,dpr,0,-vrch*dpr);
+    ctx.clearRect(0,vrch,W,vyska);
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    var rastuce = {};
+
+    for(var s=0;s<8;s++){
+      var zoz = poStyle[s]; if(!zoz.length) continue;
+      ctx.beginPath();
+      for(i=0;i<zoz.length;i++){
+        var v = zoz[i];
+        if(v.y1<y0 || v.y0>y1) continue;
+        var strom = stromy[v.s];
+        if(strom.start===-1) continue;
+        var vyrast = (teraz-strom.start)*NASTAVENIA.rychlostRastu/1000 - v.d0;
+        if(vyrast<=0){ rastie=true; rastuce[v.s]=1; continue; }
+        var p = v.pts, n = p.length/2, plne = vyrast>=v.dlzka;
+        var kolko = plne ? n : Math.min(n, Math.floor(vyrast/krok)+1);
+        var x, y, lx=0, ly=0;
+        for(j=0;j<kolko;j++){
+          x=p[j*2]; y=p[j*2+1];
+          if(aktivny){
+            var dx=x-px, dy=y-py, d2=dx*dx+dy*dy;
+            if(d2<R2 && d2>0.01){ var dd=Math.sqrt(d2), f=(1-dd/R); f=f*f*F; x+=dx/dd*f; y+=dy/dd*f; }
+          }
+          if(j===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+          lx=x; ly=y;
+        }
+        if(!plne){
+          rastie=true; rastuce[v.s]=1;
+          if(kolko<n){
+            var cast = (vyrast - (kolko-1)*krok)/krok;
+            ctx.lineTo(lx+(p[kolko*2]-p[kolko*2-2])*cast, ly+(p[kolko*2+1]-p[kolko*2-1])*cast);
+          }
+        } else if(v.hrot && v.vytrus){
+          bodky[v.tma].push(lx,ly,v.vytrus);
+        }
+      }
+      ctx.strokeStyle = farby.ciara[s];
+      ctx.lineWidth = farby.hrubka[s];
+      ctx.stroke();
+    }
+    for(var t=0;t<2;t++){
+      var b = bodky[t]; if(!b.length) continue;
+      ctx.beginPath();
+      for(i=0;i<b.length;i+=3){ ctx.moveTo(b[i]+b[i+2],b[i+1]); ctx.arc(b[i],b[i+1],b[i+2],0,6.283); }
+      ctx.fillStyle = t ? farby.vytrusTma : farby.vytrus;
+      ctx.fill();
+    }
+    // stromy v zábere, ktoré dorástli, si označíme
+    for(i=0;i<stromy.length;i++){
+      st = stromy[i];
+      if(st.start>0 && !st.hotovo && !rastuce[i] && teraz-st.start>4500) st.hotovo = true;
+      else if(st.start>0 && !st.hotovo) rastie = true;
+    }
+    if(rastie || aktivny || dotyk.ciel) ziadaj();
+  }
+  function ziadaj(){ if(!raf && !document.hidden) raf = requestAnimationFrame(kresli); }
+
+  function zasadit(znova){
+    generuj(); rozmer(); nacitajFarby();
+    if(znova){ for(var i=0;i<stromy.length;i++) if(stromy[i].y<window.pageYOffset+vh) stromy[i].start=-1e9, stromy[i].hotovo=true; }
+    vynut = true; ziadaj();
+  }
+
+  // dotyk: myš aj prst
+  if(!K.menejPohybu){
+    var pohyb = function(x,y){ dotyk.x=x; dotyk.y=y+window.pageYOffset; dotyk.ciel=1; dotyk.cas=performance.now(); if(dotyk.sila===0){dotyk.cx=dotyk.x;dotyk.cy=dotyk.y;} ziadaj(); };
+    window.addEventListener('pointermove', function(e){ if(e.pointerType!=='touch') pohyb(e.clientX,e.clientY); }, {passive:true});
+    window.addEventListener('touchstart', function(e){ var t=e.touches[0]; if(t) pohyb(t.clientX,t.clientY); }, {passive:true});
+    window.addEventListener('touchmove', function(e){ var t=e.touches[0]; if(t) pohyb(t.clientX,t.clientY); }, {passive:true});
+  }
+  window.addEventListener('scroll', ziadaj, {passive:true});
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ vynut=true; ziadaj(); } });
+
+  // zmena veľkosti: nový les z toho istého semienka
+  var poslW=0, poslH=0, cakaj=0;
+  function skontroluj(){
+    var w=document.documentElement.clientWidth, h=document.body.scrollHeight;
+    if(w!==poslW || Math.abs(h-poslH)>40){ var prve=!poslW; poslW=w; poslH=h; zasadit(!prve); }
+    else if(window.innerHeight!==vh){ vh=window.innerHeight; rozmer(); vynut=true; ziadaj(); }   // len lišta prehliadača
+  }
+  function odloz(){ clearTimeout(cakaj); cakaj=setTimeout(skontroluj, 260); }
+  window.addEventListener('resize', odloz);
+  if(window.ResizeObserver) new ResizeObserver(odloz).observe(document.body);
+
+  var hotovo=false;
+  function start(){ if(hotovo) return; hotovo=true; skontroluj(); }
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(start);
+  setTimeout(start, 1200);
+
+  K.podhubie = {
+    nastavenia: NASTAVENIA,
+    prefarbi: function(){ nacitajFarby(); vynut=true; ziadaj(); },
+    zasad: function(semienko){ if(semienko) K.semienko=semienko; prvy=true; poslW=0; skontroluj(); K.ukazSemienko(); }
+  };
+})();
+
+/* =========================================================
+   KOMPONENT: LES V REZE
+   Potrebuje: <div class="les" data-les><div class="les__scena"><canvas></canvas></div>…</div>, JADRO.
+   Nad zemou stoja stromy a ľudia, pod zemou ich spája podhubie.
+   Po vláknach putujú svetielka: správy od jedného k druhému.
+   ========================================================= */
+(function(){
+  var K = window.Kompas, vsetky = [];
+  var sceny = document.querySelectorAll('[data-les]');
+  for(var i=0;i<sceny.length;i++) zaloz(sceny[i]);
+  K.les = { znova: function(){ for(var j=0;j<vsetky.length;j++) vsetky[j](); } };
+
+  function zaloz(el){
+    var sc = el.querySelector('.les__scena'), c = sc && sc.querySelector('canvas');
+    if(!c || !c.getContext) return;
+    var ctx = c.getContext('2d');
+    var podklad = document.createElement('canvas'), pctx = podklad.getContext('2d');
+    var NASTAVENIA = {
+      roztec: parseFloat(el.dataset.roztec) || 0,   // px medzi postavami, 0 = automaticky
+      podielLudi: parseFloat(el.dataset.ludia) || 0.42,
+      svetielka: el.dataset.svetielka ? parseFloat(el.dataset.svetielka) : 1   // 0 vypne, 2 zdvojnásobí
+    };
+    var W=0, H=0, zem=0, dpr=1, bytosti=[], ciary=[], cesty=[], huby=[], uzly=[], iskry=[];
+    var start=0, upecene=false, vidno=false, bezi=false, posl=0, dalsia=0, poslB=-1, poslCas=0;
+    var RAST = 5400;   // ms: les vyrastie, potom sa podzemie už neprekresľuje
+    var F = { les:'#183533', salvia:'#8eaa93', smrek:'#6b8c73', krem:'#fffbf6', broskyna:'#ffe6db', oranz:'#ff9c00',
+      ciara:['rgba(142,170,147,.95)','rgba(255,230,219,.9)','rgba(255,251,246,.66)','rgba(255,251,246,.38)'] };
+
+    function koren(x,y,a,dl,w0,w1,rnd){
+      var p=[x,y], om=0, krok=5;
+      for(var d=0; d<dl; d+=krok){
+        om = om*0.8 + (rnd()-.5)*0.16; a += om + Math.sin(Math.PI/2-a)*0.035;
+        x += Math.cos(a)*krok; y += Math.sin(a)*krok;
+        if(y>H-14 || x<4 || x>W-4) break;
+        p.push(x,y);
+      }
+      return {p:p, w0:w0, w1:w1, farba:0, t0:0, dur:900};
+    }
+
+    function postav(){
+      var r = sc.getBoundingClientRect();
+      W = r.width; H = r.height; zem = Math.round(H*0.38);
+      if(W<10 || H<10) return;
+      dpr = Math.min(window.devicePixelRatio||1, W<800?2:1.5);
+      c.width = podklad.width = Math.round(W*dpr);
+      c.height = podklad.height = Math.round(H*dpr);
+      var rnd = K.nahoda(K.semienko+101);
+      bytosti=[]; ciary=[]; cesty=[]; huby=[]; uzly=[]; iskry=[]; upecene=false;
+      var maly = W<700, roztec = NASTAVENIA.roztec || (maly?80:124), n = Math.max(4, Math.round(W/roztec)), pod = H-zem, i, j, k;
+
+      // 1) kto stojí na zemi: stromy a ľudia pomiešaní
+      var typy=[];
+      for(i=0;i<n;i++) typy.push(rnd()<NASTAVENIA.podielLudi ? 'clovek' : 'strom');
+      for(i=2;i<n;i++) if(typy[i]===typy[i-1] && typy[i]===typy[i-2]) typy[i] = typy[i]==='strom' ? 'clovek' : 'strom';
+      if(typy.indexOf('clovek')<0) typy[1]='clovek';
+      if(typy.indexOf('strom')<0) typy[0]='strom';
+      for(i=0;i<n;i++){
+        var x = (i+0.5)*W/n + (rnd()-.5)*W/n*0.3;
+        if(typy[i]==='strom'){
+          var sm = rnd()<0.5;
+          bytosti.push({typ:sm?'smrek':'listnac', x:x, h:zem*(sm ? 0.68+rnd()*0.26 : 0.54+rnd()*0.3), s:rnd()});
+        } else {
+          var hh = zem*(0.32+rnd()*0.06);
+          bytosti.push({typ:'clovek', x:x, h:hh, s:rnd()});
+          if(rnd()<0.4) bytosti.push({typ:'clovek', x:x+hh*0.44*(rnd()<.5?-1:1), h:hh*(rnd()<0.5?0.62:0.93), s:rnd()});
+        }
+      }
+      bytosti.sort(function(a,b){ return a.x-b.x; });
+
+      // 2) korene
+      for(i=0;i<bytosti.length;i++){
+        var b = bytosti[i], cl = b.typ==='clovek';
+        b.ziara=0; b.korene=[]; b.cesty=[]; b.t0 = 150+i*(maly?110:75);
+        var nr = cl ? 2 : 3+Math.floor(rnd()*2);
+        for(k=0;k<nr;k++){
+          var a = Math.PI*(0.16+0.68*(k+0.5)/nr) + (rnd()-.5)*0.3;
+          var dl = pod*(cl ? 0.16+rnd()*0.12 : 0.3+rnd()*0.22);
+          var kor = koren(b.x+(cl?0:(k-(nr-1)/2)*3), zem, a, dl, cl?1.5:3.4, cl?0.6:0.9, rnd);
+          kor.t0 = b.t0+500; kor.dur = 1000; kor.farba = cl?1:0;
+          b.korene.push(kor); ciary.push(kor);
+          if(!cl && rnd()<0.85 && kor.p.length>12){
+            var m = Math.floor(kor.p.length/2*(0.35+rnd()*0.3))*2;
+            var bo = koren(kor.p[m], kor.p[m+1], a+(rnd()<.5?-1:1)*(0.5+rnd()*0.5), dl*0.42, 1.6, 0.6, rnd);
+            bo.t0 = kor.t0+450; bo.dur = 700; ciary.push(bo);
+          }
+        }
+      }
+
+      // 3) podhubie: vlákna od koreňa ku koreňu
+      function vyber(B, smer){
+        var naj = B.korene[0];
+        for(var q=1;q<B.korene.length;q++){
+          var kp = B.korene[q].p, np = naj.p;
+          if((kp[kp.length-2]-np[np.length-2])*smer > 0) naj = B.korene[q];
+        }
+        return naj;
+      }
+      function chlp(x,y,a,dl,t0){
+        var h = koren(x,y,a,dl,0.6,0.6,rnd); h.farba=3; h.t0=t0; h.dur=420; ciary.push(h);
+        if(dl>14 && rnd()<0.35){
+          var mm = Math.floor(h.p.length/4)*2;
+          var h2 = koren(h.p[mm],h.p[mm+1],a+(rnd()<.5?-1:1)*0.8,dl*0.6,0.6,0.6,rnd); h2.farba=3; h2.t0=t0+200; h2.dur=350; ciary.push(h2);
+        }
+      }
+      function spoj(ia, ib, hlavne){
+        var A = bytosti[ia], B = bytosti[ib];
+        var ka = vyber(A,1), kb = vyber(B,-1), pa = ka.p, pb = kb.p;
+        var ax=pa[pa.length-2], ay=pa[pa.length-1], bx=pb[pb.length-2], by=pb[pb.length-1];
+        var dx = bx-ax, prehyb = Math.min(16+rnd()*Math.min(70,pod*0.3), Math.abs(dx)*0.4+6);
+        var c1x=ax+dx*0.3, c1y=Math.min(H-18,ay+prehyb), c2x=bx-dx*0.3, c2y=Math.min(H-18,by+prehyb*(0.6+rnd()*0.8));
+        var N = Math.max(8, Math.ceil((Math.abs(dx)+Math.abs(by-ay))/5)), p=[], f1=rnd()*6.28, f2=rnd()*6.28, amp=1.5+rnd()*3.5;
+        for(var q=0;q<=N;q++){
+          var t=q/N, u=1-t;
+          var x1=u*u*u*ax+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*bx, y1=u*u*u*ay+3*u*u*t*c1y+3*u*t*t*c2y+t*t*t*by;
+          p.push(x1, Math.min(H-8, y1+Math.sin(t*Math.PI)*amp*(Math.sin(t*9+f1)+0.6*Math.sin(t*21+f2))));
+        }
+        var t0 = 1900+rnd()*1000;
+        ciary.push({p:p, w0:hlavne?1.35:0.95, w1:hlavne?1.35:0.95, farba:2, t0:t0, dur:1300});
+        uzly.push(ax,ay,t0, bx,by,t0+1300);
+        // jemné chĺpky pozdĺž vlákna
+        for(q=3;q<N-2;q+=3+Math.floor(rnd()*3)){
+          if(rnd()<0.75){
+            var tg = Math.atan2(p[q*2+3]-p[q*2-1], p[q*2+2]-p[q*2-2]);
+            var dolu = rnd()<0.14;
+            chlp(p[q*2],p[q*2+1], dolu ? Math.PI/2+(rnd()-.5)*0.7 : tg+(rnd()<.5?-1:1)*(0.7+rnd()*0.7), dolu ? 30+rnd()*pod*0.3 : 8+rnd()*18, t0+1300*q/N);
+          }
+        }
+        // celá cesta pre svetielko: koreň dole, vlákno, druhý koreň hore
+        var cela = pa.slice();
+        for(q=2;q<p.length;q++) cela.push(p[q]);
+        for(q=pb.length-4;q>=0;q-=2) cela.push(pb[q],pb[q+1]);
+        var dlz=[0];
+        for(q=2;q<cela.length;q+=2){ var ex=cela[q]-cela[q-2], ey=cela[q+1]-cela[q-1]; dlz.push(dlz[dlz.length-1]+Math.sqrt(ex*ex+ey*ey)); }
+        cesty.push({p:cela, dl:dlz, dlzka:dlz[dlz.length-1], a:ia, b:ib});
+        A.cesty.push(cesty.length-1); B.cesty.push(cesty.length-1);
+      }
+      for(i=0;i<bytosti.length-1;i++){
+        spoj(i,i+1,true);
+        if(rnd()<0.45) spoj(i,i+1,false);
+        if(i+2<bytosti.length && rnd()<0.5) spoj(i,i+2,false);
+        if(i+3<bytosti.length && rnd()<0.14) spoj(i,i+3,false);
+      }
+      // chĺpky na koncoch koreňov
+      for(i=0;i<bytosti.length;i++) for(k=0;k<bytosti[i].korene.length;k++){
+        var kp2 = bytosti[i].korene[k].p, tx=kp2[kp2.length-2], ty=kp2[kp2.length-1];
+        for(j=0;j<2;j++) chlp(tx,ty, Math.PI*(0.2+rnd()*0.6), 10+rnd()*20, 2600+rnd()*800);
+      }
+
+      // 4) huby: podľa nich každý spozná, že ide o podhubie
+      var nh = Math.max(2, Math.round(n*0.45));
+      for(i=0;i<nh;i++){
+        var gi = Math.floor(rnd()*(bytosti.length-1)), x0 = bytosti[gi].x, x1b = bytosti[gi+1].x;
+        if(x1b-x0<40) continue;
+        var hx = x0+(x1b-x0)*(0.36+rnd()*0.28), ht = 1500+rnd()*900;
+        huby.push({x:hx, v:8+rnd()*5, t0:ht, oranz:i===0});
+        if(rnd()<0.55) huby.push({x:hx+10+rnd()*4, v:5+rnd()*2.5, t0:ht+250});
+        var hk = koren(hx, zem, Math.PI/2+(rnd()-.5)*0.9, pod*(0.12+rnd()*0.16), 0.9, 0.5, rnd);
+        hk.farba=2; hk.t0=ht-200; hk.dur=800; ciary.push(hk);
+      }
+
+      if(K.menejPohybu){
+        for(i=0;i<Math.min(5,cesty.length);i++){ var ci=Math.floor(rnd()*cesty.length); iskry.push({c:ci, s:cesty[ci].dlzka*(0.25+rnd()*0.5), smer:1, v:0}); }
+      }
+    }
+
+    function kresliCiaru(g, L, t){
+      var pr = (t-L.t0)/L.dur; if(pr<=0) return;
+      if(pr>1) pr=1; pr = 1-(1-pr)*(1-pr);
+      var p=L.p, n=p.length/2, kolko=Math.max(2, Math.ceil(pr*(n-1))+1); if(kolko>n) kolko=n;
+      g.strokeStyle = F.ciara[L.farba];
+      var casti = L.w0===L.w1 ? 1 : 3, od=0;
+      for(var q=0;q<casti;q++){
+        var po = q===casti-1 ? kolko-1 : Math.min(kolko-1, Math.round((n-1)*(q+1)/casti));
+        if(po<=od) break;
+        g.beginPath(); g.moveTo(p[od*2],p[od*2+1]);
+        for(var j=od+1;j<=po;j++) g.lineTo(p[j*2],p[j*2+1]);
+        g.lineWidth = casti===1 ? L.w0 : L.w0+(L.w1-L.w0)*(q+0.5)/casti;
+        g.stroke(); od=po;
+      }
+    }
+    function kresliPodzemie(g, t){
+      g.lineCap='round'; g.lineJoin='round';
+      var i, f;
+      for(f=3;f>=0;f--) for(i=0;i<ciary.length;i++) if(ciary[i].farba===f) kresliCiaru(g, ciary[i], t);
+      g.fillStyle='rgba(255,251,246,.9)'; g.beginPath();
+      for(i=0;i<uzly.length;i+=3) if(t>uzly[i+2]){ g.moveTo(uzly[i]+1.9,uzly[i+1]); g.arc(uzly[i],uzly[i+1],1.9,0,6.283); }
+      g.fill();
+      // dole sa sieť stráca do stránky
+      var gr = g.createLinearGradient(0,H-50,0,H); gr.addColorStop(0,'rgba(0,0,0,0)'); gr.addColorStop(1,'rgba(0,0,0,1)');
+      g.globalCompositeOperation='destination-out'; g.fillStyle=gr; g.fillRect(0,H-50,W,50); g.globalCompositeOperation='source-over';
+    }
+    function upec(){ pctx.setTransform(dpr,0,0,dpr,0,0); pctx.clearRect(0,0,W,H); kresliPodzemie(pctx, 1e12); upecene=true; }
+
+    function bod(cs, s){
+      var d=cs.dl, lo=0, hi=d.length-1;
+      if(s<=0) return [cs.p[0],cs.p[1]]; if(s>=cs.dlzka) return [cs.p[hi*2],cs.p[hi*2+1]];
+      while(hi-lo>1){ var m=(lo+hi)>>1; if(d[m]<=s) lo=m; else hi=m; }
+      var k=(s-d[lo])/(d[hi]-d[lo]||1);
+      return [cs.p[lo*2]+(cs.p[hi*2]-cs.p[lo*2])*k, cs.p[lo*2+1]+(cs.p[hi*2+1]-cs.p[lo*2+1])*k];
+    }
+    function vypust(ci, smer){
+      if(iskry.length >= (W<700?5:10)*NASTAVENIA.svetielka) return;
+      iskry.push({c:ci, s:smer>0?0:cesty[ci].dlzka, smer:smer, v:44+Math.random()*30});
+    }
+    function odBytosti(bi, okrem, max){
+      var b=bytosti[bi], poc=0;
+      for(var q=0;q<b.cesty.length && poc<max;q++){
+        var ci=b.cesty[q]; if(ci===okrem) continue;
+        vypust(ci, cesty[ci].a===bi ? 1 : -1); poc++;
+      }
+    }
+
+    function kresliBytost(b, e, dych){
+      var h=b.h, k, m = 1+0.012*dych+0.04*b.ziara;
+      ctx.save(); ctx.translate(b.x, zem); ctx.scale(0.7+0.3*e, e);
+      if(b.typ==='smrek'){
+        ctx.fillStyle=F.les; ctx.fillRect(-2.5,-h*0.13,5,h*0.13+1);
+        ctx.translate(0,-h*0.1); ctx.scale(m,m); ctx.fillStyle=F.smrek;
+        var hc=h*0.9, sir=h*0.25;
+        for(k=0;k<4;k++){
+          var yb=-hc*k*0.215, wk=sir*(1-k*0.2), ya=Math.max(-hc, yb-hc*0.42);
+          ctx.beginPath(); ctx.moveTo(-wk,yb); ctx.quadraticCurveTo(0,yb+wk*0.22,wk,yb); ctx.lineTo(0,ya); ctx.closePath(); ctx.fill();
+        }
+      } else if(b.typ==='listnac'){
+        ctx.fillStyle=F.les; ctx.beginPath(); ctx.moveTo(-3.6,1); ctx.lineTo(3.6,1); ctx.lineTo(2,-h*0.55); ctx.lineTo(-2,-h*0.55); ctx.closePath(); ctx.fill();
+        ctx.translate(0,-h*0.68); ctx.scale(m,m); ctx.fillStyle=F.salvia;
+        var R=h*0.3, o=(b.s-.5)*0.3;
+        ctx.beginPath();
+        ctx.arc(0,0,R,0,6.283);
+        ctx.moveTo(-R*0.75+R*0.66,R*0.26); ctx.arc(-R*0.75,R*0.26,R*0.66,0,6.283);
+        ctx.moveTo(R*0.78+R*0.7,R*(0.2+o)); ctx.arc(R*0.78,R*(0.2+o),R*0.7,0,6.283);
+        ctx.moveTo(-R*0.3+R*0.62,-R*(0.6-o)); ctx.arc(-R*0.3,-R*(0.6-o),R*0.62,0,6.283);
+        ctx.moveTo(R*0.42+R*0.56,-R*0.54); ctx.arc(R*0.42,-R*0.54,R*0.56,0,6.283);
+        ctx.fill();
+      } else {
+        var rh=h*0.15, ys=-h*0.68, ws=h*0.36, wb=h*0.27, rr=ws*0.42;
+        ctx.fillStyle=F.les;
+        ctx.beginPath(); ctx.arc(0,-h+rh,rh,0,6.283); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-wb/2,1); ctx.lineTo(-ws/2,ys+rr); ctx.quadraticCurveTo(-ws/2,ys,-ws/2+rr,ys);
+        ctx.lineTo(ws/2-rr,ys); ctx.quadraticCurveTo(ws/2,ys,ws/2,ys+rr); ctx.lineTo(wb/2,1); ctx.closePath(); ctx.fill();
+        // iskra v človeku: rozžiari sa, keď k nemu dorazí správa
+        var iy=ys+h*0.2;
+        if(b.ziara>0.02){ ctx.fillStyle='rgba(255,156,0,'+(0.3*b.ziara)+')'; ctx.beginPath(); ctx.arc(0,iy,h*0.3,0,6.283); ctx.fill(); }
+        ctx.fillStyle=F.oranz; ctx.beginPath(); ctx.arc(0,iy,Math.max(1.8,h*0.045)+1.4*b.ziara,0,6.283); ctx.fill();
+      }
+      ctx.restore();
+    }
+    function kresliHubu(hb, e){
+      var v=hb.v;
+      ctx.save(); ctx.translate(hb.x, zem); ctx.scale(e,e);
+      ctx.lineWidth=1.3; ctx.strokeStyle=F.les; ctx.lineJoin='round';
+      ctx.fillStyle=F.krem; ctx.beginPath(); ctx.rect(-v*0.22,-v*0.95,v*0.44,v*0.95+1); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = hb.oranz ? F.oranz : F.broskyna;
+      ctx.beginPath(); ctx.ellipse(0,-v*0.9,v,v*0.78,0,Math.PI,0); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    function mekko(x){ if(x<=0) return 0; if(x>=1) return 1; x=1-x; return 1-x*x*x; }
+
+    function kresli(t, dt){
+      var i, q;
+      ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+      if(t>=RAST){ if(!upecene) upec(); ctx.drawImage(podklad,0,0,W,H); }
+      else kresliPodzemie(ctx, t);
+
+      // svetielka: správy putujú od jedného k druhému
+      if(t>3300 && !K.menejPohybu && NASTAVENIA.svetielka>0 && cesty.length){
+        dalsia -= dt;
+        if(dalsia<=0){ vypust(Math.floor(Math.random()*cesty.length), Math.random()<.5?1:-1); dalsia=(W<700?0.9:0.5)+Math.random()*1.3; }
+      }
+      for(i=iskry.length-1;i>=0;i--){
+        var k=iskry[i], cs=cesty[k.c];
+        k.s += k.smer*k.v*dt;
+        if(k.s<0 || k.s>cs.dlzka){
+          var ciel = k.smer>0 ? cs.b : cs.a;
+          bytosti[ciel].ziara = 1;
+          iskry.splice(i,1);
+          if(Math.random()<0.4) odBytosti(ciel, k.c, 1);     // správa ide ďalej
+          continue;
+        }
+        for(q=4;q>=0;q--){
+          var bd = bod(cs, k.s-k.smer*q*7), al = 1-q*0.2;
+          if(q===0){ ctx.fillStyle='rgba(255,156,0,.18)'; ctx.beginPath(); ctx.arc(bd[0],bd[1],9,0,6.283); ctx.fill(); }
+          ctx.fillStyle='rgba(255,214,170,'+(0.5*al)+')'; ctx.beginPath(); ctx.arc(bd[0],bd[1],3.4*al+0.4,0,6.283); ctx.fill();
+          if(q===0){ ctx.fillStyle='rgba(255,251,246,1)'; ctx.beginPath(); ctx.arc(bd[0],bd[1],1.7,0,6.283); ctx.fill(); }
+        }
+      }
+
+      var dych = 0.5-0.5*Math.cos(6.283*((Date.now()%10000)/10000));
+      for(i=0;i<huby.length;i++){ var eh=mekko((t-huby[i].t0)/600); if(eh>0) kresliHubu(huby[i], eh); }
+      for(i=0;i<bytosti.length;i++){
+        var b=bytosti[i], e=mekko((t-b.t0)/950);
+        if(b.ziara>0) b.ziara = b.ziara<0.02 ? 0 : b.ziara*Math.pow(0.22,dt);
+        if(e>0) kresliBytost(b, e, K.menejPohybu?0:dych);
+      }
+    }
+    function slucka(teraz){
+      if(!vidno || document.hidden){ bezi=false; return; }
+      requestAnimationFrame(slucka);
+      var dt=Math.min((teraz-posl)/1000,0.05); posl=teraz;
+      kresli(teraz-start, dt);
+    }
+    function spusti(){
+      if(K.menejPohybu || bezi || !vidno || document.hidden) return;
+      if(!start) start=performance.now();
+      bezi=true; posl=performance.now(); requestAnimationFrame(slucka);
+    }
+    function znova(){
+      postav();
+      if(K.menejPohybu){ kresli(1e12,0); return; }
+      if(start) start = performance.now();     // nový les vyrastie odznova
+      spusti();
+    }
+    vsetky.push(znova);
+
+    postav();
+    if(K.menejPohybu){ kresli(1e12,0); }
+    else {
+      if(window.IntersectionObserver) new IntersectionObserver(function(z){ vidno=z[0].isIntersecting; spusti(); },{threshold:0.05}).observe(sc);
+      else { vidno=true; spusti(); }
+      document.addEventListener('visibilitychange', spusti);
+      // dotyk: kto sa dotkne stromu alebo človeka, pošle od neho správu ďalej
+      var dotyk = function(cx){
+        var t=performance.now()-start; if(!start || t<2600) return;
+        var x=cx-sc.getBoundingClientRect().left, naj=-1, nd=48;
+        for(var q=0;q<bytosti.length;q++){ var d=Math.abs(bytosti[q].x-x); if(d<nd){ nd=d; naj=q; } }
+        if(naj<0 || (naj===poslB && performance.now()-poslCas<1500)) return;
+        poslB=naj; poslCas=performance.now(); bytosti[naj].ziara=1; odBytosti(naj,-1,3);
+      };
+      sc.addEventListener('pointermove', function(e){ if(e.pointerType!=='touch') dotyk(e.clientX); }, {passive:true});
+      sc.addEventListener('touchstart', function(e){ if(e.touches[0]) dotyk(e.touches[0].clientX); }, {passive:true});
+    }
+    var cak=0, poslW=W;
+    window.addEventListener('resize', function(){ clearTimeout(cak); cak=setTimeout(function(){
+      var w=sc.getBoundingClientRect().width; if(Math.abs(w-poslW)<2) return; poslW=w;
+      postav(); if(K.menejPohybu) kresli(1e12,0); else if(start) start=performance.now()-RAST;
+    },250); });
+  }
+})();
+
+/* =========================================================
+   KOMPONENT: OHEŇ · uhlíky
+   Potrebuje: <div class="ohnisko" data-ohen><canvas></canvas></div>
+   ========================================================= */
+(function(){
+  var K = window.Kompas;
+  var ohne = document.querySelectorAll('[data-ohen]');
+  for(var o=0;o<ohne.length;o++) zaloz(ohne[o]);
+
+  function zaloz(el){
+    var c = el.querySelector('canvas'); if(!c || !c.getContext) return;
+    var ctx = c.getContext('2d'), W=0, H=0, dpr=1, uhliky=[], bezi=false, vidno=false, posl=0;
+    var rnd = K.nahoda(K.semienko+7);
+    var POCET = parseInt(el.dataset.pocet,10) || 0;
+
+    function novy(u, odZaciatku){
+      u.x = W/2 + (rnd()+rnd()+rnd()-1.5)*W*0.26;
+      u.y = H + 4;
+      u.vy = 9+rnd()*15;                 // px za sekundu, pomaly
+      u.r = 0.8+rnd()*1.6;
+      u.zivot = 5+rnd()*5;
+      u.vek = odZaciatku ? rnd()*u.zivot : 0;
+      u.faza = rnd()*6.28; u.kyv = 6+rnd()*14;
+      return u;
+    }
+    function rozmer(){
+      var r = el.getBoundingClientRect();
+      W=r.width; H=r.height; dpr=Math.min(window.devicePixelRatio||1,2);
+      c.width=Math.round(W*dpr); c.height=Math.round(H*dpr);
+      var n = POCET || (W<700?10:20);
+      uhliky=[]; for(var i=0;i<n;i++) uhliky.push(novy({},true));
+    }
+    function kresli(dt){
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,W,H);
+      ctx.globalCompositeOperation='lighter';
+      for(var i=0;i<uhliky.length;i++){
+        var u=uhliky[i];
+        u.vek+=dt; if(u.vek>u.zivot) novy(u,false);
+        var t=u.vek/u.zivot, y=u.y-u.vy*u.vek, x=u.x+Math.sin(u.faza+u.vek*0.7)*u.kyv*t;
+        if(y<H*0.12) { u.vek=u.zivot; continue; }
+        var a=Math.sin(Math.PI*t); a*=a;
+        ctx.fillStyle='rgba(255,156,0,'+(0.14*a)+')';
+        ctx.beginPath(); ctx.arc(x,y,u.r*3.4,0,6.283); ctx.fill();
+        ctx.fillStyle='rgba(255,214,170,'+(0.9*a)+')';
+        ctx.beginPath(); ctx.arc(x,y,u.r,0,6.283); ctx.fill();
+      }
+      ctx.globalCompositeOperation='source-over';
+    }
+    function slucka(teraz){
+      if(!vidno || document.hidden){ bezi=false; return; }
+      requestAnimationFrame(slucka);
+      if(teraz-posl<32) return;          // 30 snímok za sekundu stačí
+      var dt=Math.min((teraz-posl)/1000,0.1); posl=teraz;
+      kresli(dt);
+    }
+    function spusti(){ if(!bezi && vidno && !document.hidden && !K.menejPohybu){ bezi=true; posl=performance.now(); requestAnimationFrame(slucka); } }
+
+    rozmer();
+    if(K.menejPohybu){ kresli(0); return; }   // statické uhlíky
+    if(window.IntersectionObserver){
+      new IntersectionObserver(function(z){ vidno=z[0].isIntersecting; spusti(); }).observe(el);
+    } else { vidno=true; spusti(); }
+    document.addEventListener('visibilitychange', spusti);
+    var cak=0; window.addEventListener('resize', function(){ clearTimeout(cak); cak=setTimeout(function(){ rozmer(); if(K.menejPohybu) kresli(0); },250); });
+  }
+})();
+
+/* =========================================================
+   KOMPONENT: RAST, FOTKY, UZLY
+   Všetko, čo reaguje na príchod do záberu.
+   ========================================================= */
+(function(){
+  var PAPRAD = '<svg class="paprad" viewBox="0 0 28 28" aria-hidden="true"><path pathLength="1" d="M3 26C3 13 9 5 17 5a7.5 7.5 0 0 1 7.5 7.5 5.6 5.6 0 0 1-5.6 5.6 4 4 0 0 1-4-4 2.6 2.6 0 0 1 2.6-2.6"/></svg>';
+  var stitky = document.querySelectorAll('.stitok');
+  for(var i=0;i<stitky.length;i++) stitky[i].insertAdjacentHTML('afterbegin', PAPRAD);
+
+  var rast = document.querySelectorAll('[data-rast]'), fotky = document.querySelectorAll('.foto'), pasy = document.querySelectorAll('.pas');
+  if(!window.IntersectionObserver){
+    for(i=0;i<rast.length;i++) rast[i].classList.add('vyrastene');
+    for(i=0;i<fotky.length;i++) fotky[i].classList.add('nadych');
+    return;
+  }
+  function sleduj(prvky, trieda, okraj){
+    var io = new IntersectionObserver(function(zaznamy){
+      for(var j=0;j<zaznamy.length;j++){
+        if(zaznamy[j].isIntersecting){ zaznamy[j].target.classList.add(trieda); io.unobserve(zaznamy[j].target); }
+      }
+    }, {rootMargin: okraj, threshold: 0.08});
+    for(var j=0;j<prvky.length;j++) io.observe(prvky[j]);
+  }
+  sleduj(rast, 'vyrastene', '0px 0px -8% 0px');
+  sleduj(fotky, 'nadych', '0px 0px -12% 0px');
+  var uzly = []; for(i=0;i<pasy.length;i++){ var u=pasy[i].querySelector('.uzol'); if(u) uzly.push(u); }
+  sleduj(uzly, 'svieti', '0px 0px -35% 0px');
+})();
+
+/* =========================================================
+   Drobnosti stránky: formulár, predvoľba témy, náhľad
+   ========================================================= */
+(function(){
+  var K = window.Kompas;
+  var tema = document.getElementById('f-tema');
+  document.addEventListener('click', function(e){
+    var a = e.target.closest && e.target.closest('a[data-tema]');
+    if(a && tema) tema.value = a.getAttribute('data-tema');
+  });
+  var f = document.getElementById('formular');
+  if(f) f.addEventListener('submit', function(e){
+    e.preventDefault();
+    f.querySelector('.formular__sprava').textContent = 'Toto je prototyp, formulár zatiaľ nič neodosiela. Miško ho napojí vo WordPresse.';
+  });
+
+  var nc = document.getElementById('n-cas'), no = document.getElementById('n-obdobie'), ns = document.getElementById('n-semienko');
+  function zmen(){ K.rucnyCas = !!(nc.value||no.value); K.nastavCas(nc.value, no.value); }
+  if(nc) nc.addEventListener('change', zmen);
+  if(no) no.addEventListener('change', zmen);
+  if(ns) ns.addEventListener('click', function(){ K.podhubie && K.podhubie.zasad(Math.floor(Math.random()*90000)+10000); K.les && K.les.znova(); });
+})();
+</script>
+</body>
+</html>
