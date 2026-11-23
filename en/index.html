@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kompas Regenerácie – events, community and an ecovillage</title>
+<meta name="description" content="Kompas Regenerácie brings together people who want to live differently and helps them make it happen, together. Events, learning, community and an ecovillage.">
+<link rel="canonical" href="https://kompasregeneracie.sk/en/">
+<link rel="alternate" hreflang="sk" href="https://kompasregeneracie.sk/">
+<link rel="alternate" hreflang="cs" href="https://kompasregeneracie.sk/cz/">
+<link rel="alternate" hreflang="en" href="https://kompasregeneracie.sk/en/">
+<link rel="alternate" hreflang="x-default" href="https://kompasregeneracie.sk/">
+<meta name="theme-color" content="#fffbf6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18.5' fill='%23fffbf6' stroke='%23183533' stroke-width='1.5'/%3E%3Cpath d='M20 5l3.4 11.6L35 20l-11.6 3.4L20 35l-3.4-11.6L5 20l11.6-3.4z' fill='%23183533'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:site_name" content="Kompas Regenerácie">
+<meta property="og:url" content="https://kompasregeneracie.sk/en/">
+<meta property="og:title" content="Kompas Regenerácie – we are connected like a forest">
+<meta property="og:description" content="We bring together people who want to live differently and help them make it happen, together. Events, learning, community and an ecovillage.">
+<!-- og:image doplniť, keď budú fotky: <meta property="og:image" content="https://kompasregeneracie.sk/obrazky/zdielanie.jpg"> (1200 × 630 px) -->
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Kompas Regenerácie","url":"https://kompasregeneracie.sk/en/","slogan":"Towards a regenerative future and inner balance."}</script>
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<!--
+  ÚVODNÁ STRÁNKA · kompasregeneracie.sk
+  Slovenská verzia je zdroj. Českú (cz/) a anglickú (en/) vyrobí: python3 tools/preklad.py
+  Štýly: assets/kompas.css, živá vrstva: assets/kompas.js. Bez knižníc.
+  Živé komponenty sú v kóde oddelené komentármi "KOMPONENT: ...".
+  Alternatívy úvodnej vety (Michal môže vymeniť):
+    A (použitá ako nadpis): „We are connected like a forest. We just forgot.“
+    B (použitá ako podnadpis): „Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali.“
+    C (použitá ako nadpis sekcie Prečo práve teraz): „V dobe umelej inteligencie veríme v rozvoj ľudského potenciálu.“
+  Miesta označené triedou .doplnit čakajú na údaj od Michala.
+-->
+<link rel="stylesheet" href="../assets/kompas.css">
+</head>
+<body>
+<div class="pasik-hore" aria-hidden="true"></div>
+<a class="preskoc" href="#obsah">Skip to content</a>
+
+<!-- KOMPONENT: PODHUBIE · jediný canvas pre celú stránku, hneď za <body> -->
+<canvas id="podhubie" class="dych-jas" aria-hidden="true"></canvas>
+
+<header class="hlavicka" data-ticho>
+  <div class="obal">
+    <a class="logo" href="./" aria-label="Kompas Regenerácie, home">
+      <!-- zástupná značka, Miško vloží originál loga -->
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M20 5l3.4 11.6L35 20l-11.6 3.4L20 35l-3.4-11.6L5 20l11.6-3.4z" fill="currentColor"/></svg>
+      Kompas Regenerácie
+    </a>
+    <div class="hlavicka__prava">
+      <nav class="menu" aria-label="Main menu">
+        <a href="#pripravujeme">Events</a>
+        <a href="#hlbka">Community</a>
+        <a href="#ekodedina">Ecovillage</a>
+        <a href="#firmy">For companies</a>
+        <a class="menu__hlavny" href="#spojme-sa">Get in touch</a>
+      </nav>
+      <!--JAZYKY--><nav class="jazyky" aria-label="Language"><a href="../" lang="sk" hreflang="sk">SK</a><a href="../cz/" lang="cs" hreflang="cs">CZ</a><a href="./" lang="en" hreflang="en" aria-current="page">EN</a></nav><!--/JAZYKY-->
+    </div>
+  </div>
+</header>
+
+<main id="obsah">
+
+<!-- ===================== 1 · ÚVOD ===================== -->
+<section class="uvod" data-ticho aria-labelledby="n-uvod">
+  <div class="obal obal--uzky">
+    <h1 id="n-uvod">We are connected like a forest. We just forgot.</h1>
+    <p class="tagline">Towards a regenerative future and inner balance.</p>
+    <p class="uvodny">Kompas Regenerácie brings together people who want to live differently and helps them make it happen, together.</p>
+    <div class="tlacidla">
+      <a class="tl tl--hlavne" href="#pripravujeme">Come to an event</a>
+      <a class="tl tl--druhe" href="#spojme-sa" data-tema="komunita">Join the community</a>
+    </div>
+    <!-- POZÝVAME · pásik s jedným hlavným podujatím; keď nič nie je v pláne, celý odstrániť -->
+    <a class="najblizsie" href="#pripravujeme">
+      <span class="najblizsie__stitok">Join us</span>
+      <span class="najblizsie__text"><strong>17 Dec</strong> Gábor Maté on ADHD, online</span>
+      <span class="najblizsie__akcia">More →</span><!-- keď bude registrácia: href na registráciu a text „Registrovať →“ -->
+    </a>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:24%"></span></div>
+
+<!-- ===================== 3 · PRIPRAVUJEME ===================== -->
+<section class="sekcia" id="pripravujeme" aria-labelledby="n-pripravujeme">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">What's coming</p>
+      <h2 id="n-pripravujeme">Upcoming events. Come and join us.</h2>
+    </div>
+    <div class="mriezka" data-rast="skupina">
+      <article class="karta podujatie">
+        <span class="termin">15 December 2026</span>
+        <span class="termin-miesto">Bratislava, DK Lúky · 6 pm</span>
+        <h3>The Last Shaman</h3>
+        <p>The Slovak premiere of the documentary. Afterwards we stay together for a discussion with guests and a concert.</p>
+        <a class="tl tl--hlavne" href="https://www.inviton.eu/e-22999/posledny-saman-slovenska-premiera-s-diskusiou-a-koncertom" target="_blank" rel="noopener">Buy a ticket</a>
+      </article>
+      <article class="karta podujatie">
+        <span class="termin">17 December 2026</span>
+        <span class="termin-miesto">Online</span>
+        <h3>Gábor Maté on ADHD: questions and answers</h3>
+        <p>Gábor Maté answers questions about ADHD live. Afterwards we continue in small circles with Compassionate Inquiry practitioners.</p>
+        <!-- REGISTRÁCIA: keď bude odkaz, nahradiť riadok nižšie týmto: <a class="tl tl--tmave" href="ODKAZ">Registrovať sa</a> -->
+        <span class="cip cip--coskoro">Registration opens soon</span>
+      </article>
+      <article class="karta podujatie">
+        <span class="termin">January 2027</span>
+        <span class="termin-miesto">Bratislava and Prague</span>
+        <h3>Traumality</h3>
+        <p>Premieres of the documentary in Bratislava and Prague.</p>
+        <!-- REGISTRÁCIA: keď bude odkaz, nahradiť riadok nižšie týmto: <a class="tl tl--tmave" href="ODKAZ">Registrovať sa</a> -->
+        <span class="cip cip--coskoro">Registration opens soon</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:60%"></span></div>
+
+<!-- ===================== 2 · OHEŇ ===================== -->
+<section class="sekcia tma ohen" id="podujatia" data-tma aria-labelledby="n-ohen" style="padding-top:clamp(56px,8vw,96px)">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">We bring people together</p>
+      <h2 id="n-ohen">People have always gathered around the fire. That is where every event began.</h2>
+      <p class="uvodny">We return to that origin. At our events you take home inspiration for a healthier, more fulfilling life and meet people who are looking for the same. Often that is where you realise you are not alone in it.</p>
+    </div>
+  </div>
+
+  <figure class="foto foto--sala">
+    <div class="foto__obraz" role="img" aria-label="A full hall at the conference with Gábor Maté, September 2024"></div>
+    <figcaption class="foto__popis">Fotka: plná sála, 1 800 ľudí</figcaption>
+  </figure>
+
+  <div class="obal">
+    <div class="pribeh" data-rast="skupina">
+      <div>
+        <p class="stitok">September 2024</p>
+        <span class="cislo cislo--velke">3 500</span>
+        <span class="cislo-popis">people at a single conference</span>
+        <div class="cisla">
+          <div><span class="cislo cislo--male">1 800</span><span>in the hall</span></div>
+          <div><span class="cislo cislo--male">1 700</span><span>online</span></div>
+        </div>
+      </div>
+      <div>
+        <h3>Trauma, illness and healing in a toxic culture</h3>
+        <p style="margin-top:14px">A conference with Gábor Maté as the main guest. People came to hear about trauma and healing, and found each other.</p>
+        <p><a class="odkaz" href="https://kompasregeneracie.sk/gabor-mate/">Watch the conference recording</a></p>
+      </div>
+    </div>
+
+    <div class="trojica">
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="Gábor Maté on stage"></div><figcaption class="foto__popis">Fotka: Gábor na pódiu</figcaption></figure>
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="People talking during the break"></div><figcaption class="foto__popis">Fotka: ľudia v rozhovore</figcaption></figure>
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="The atmosphere in the hall"></div><figcaption class="foto__popis">Fotka: atmosféra</figcaption></figure>
+    </div>
+
+    <h3 class="podnadpis" data-rast>Other events we have organised</h3>
+    <div class="mriezka ohne" data-rast="skupina" tabindex="0" role="group" aria-label="Other events">
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Screening of the film about Stanislav Grof"></div><figcaption class="foto__popis">Fotka: turné Grof a Civilizácia</figcaption></figure>
+        <div class="karta__telo"><h3>Grof and Civilizace</h3><p>A tour with a film about Stanislav Grof's life's work and the film Civilizace by Petr Horký and Egyptologist Miroslav Bárta. Talks and discussions with the filmmaker, around 800 people in total.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Discussion after Viliam Poltikovič's film"></div><figcaption class="foto__popis">Fotka: Poltikovič</figcaption></figure>
+        <div class="karta__telo"><h3>A new approach to death</h3><p>Screenings of Viliam Poltikovič's film on a subject we usually avoid. Around 400 people came.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Guests from the Huni Kuin people"></div><figcaption class="foto__popis">Fotka: Huni Kuin</figcaption></figure>
+        <div class="karta__telo"><h3>Visitors from Brazil</h3><p>A film about the Huni Kuin people returning to their original culture, with talks by experts from Czechia and Slovakia. We also hosted Cacique Álvaro Tukano.</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Participants of a ten-day camp"></div><figcaption class="foto__popis">Fotka: kemp</figcaption></figure>
+        <div class="karta__telo"><h3>Ten-day camps</h3><p>Ten days together and one question: how do we build a sustainable society?</p></div>
+      </article>
+      <article class="karta">
+        <figure class="foto"><div class="foto__obraz" role="img" aria-label="Festival on relationships between men and women"></div><figcaption class="foto__popis">Fotka: festival</figcaption></figure>
+        <div class="karta__telo"><h3>Five editions of a festival</h3><p>We have run a festival devoted to healing relationships between men and women five times.</p></div>
+      </article>
+    </div>
+
+    <div class="ako" data-rast="skupina">
+      <h3>A space where everyone has a voice</h3>
+      <div>
+        <p class="uvodny">Instead of a wall between speaker and audience, we create a space where everyone can speak. Our events are closer to community gatherings: they bring together people with a shared interest to exchange views and join forces.</p>
+        <p>Every event comes with a follow-up programme, so that inspiration turns into lasting change.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- KOMPONENT: OHEŇ -->
+  <div class="ohnisko" data-ohen aria-hidden="true"><canvas></canvas></div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:72%"></span></div>
+
+<!-- ===================== 4 · PREČO TO ROBÍME (+ kto za tým stojí) ===================== -->
+<section class="sekcia" id="preco" aria-labelledby="n-preco">
+  <div class="obal preco">
+    <div class="preco__foto" data-rast>
+      <figure class="foto"><div class="foto__obraz" role="img" aria-label="Michal Marguš, coordinator of Kompas Regenerácie"></div><figcaption class="foto__popis">Fotka: Michal</figcaption></figure>
+      <p class="podpis"><strong>Michal Marguš</strong>coordinator of Kompas Regenerácie. He has lived in four communities, organises events and brings people together.</p>
+      <p class="podpis podpis--cesta">For more than ten years he has been changing things beyond the event hall too. He helped found Deti nepočkajú (Children Won't Wait), which stopped an amendment restricting grassroots innovation in schools; Nestrácajme čas (Let's Not Waste Time), which brought the first climate petition addressed to the government; and the Central European Interreligious Forum.</p>
+    </div>
+    <div data-rast>
+      <p class="stitok">Why we do this</p>
+      <h2 id="n-preco">Life can be a thousand times better. I've lived it.</h2>
+      <p class="uvodny" style="margin-top:24px">People don't realise how much power they have. The power of love, the power of working together.</p>
+      <p>I experienced it in the first communities of my life. We were out in nature, at peace, nobody in a hurry. We bought food in bulk, peas, lentils, and a meal for ten people cost a few euros. We cooked over wood.</p>
+      <p>Nothing special happened there. No hippie stuff, just ordinary human kindness. When the things that stress us disappear from life, kindness, talent and the will to cooperate start to wake up in a person.</p>
+      <p>Later several of us lived in one big house and built a permaculture garden together. Suddenly it wasn't work, it was all fun. Those who weren't handy learned from those who knew better.</p>
+      <p>In a healthy environment a person can begin to heal. And discover they are far more capable than they thought.</p>
+      <div class="karta karta--broskyna">
+        <p class="citat">Slovakia has a unique opportunity here. We are a modern country, and yet almost all of us are only a generation or two away from village and community life.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:36%"></span></div>
+
+<!-- ===================== 5 · PREČO PRÁVE TERAZ ===================== -->
+<section class="sekcia" id="teraz" aria-labelledby="n-teraz">
+  <div class="obal obal--uzky" data-rast>
+    <p class="stitok">Why now</p>
+    <h2 id="n-teraz">In the age of artificial intelligence, we believe in developing human potential.</h2>
+    <p class="uvodny" style="margin-top:24px">We have not yet discovered what real human and emotional intelligence is, and we are already handing it over to machines. Then there is the climate: we live in a system that destroys nature, even though none of us wants that.</p>
+    <p>Even people who built artificial intelligence warn about its risks. Geoffrey Hinton, Nobel laureate in physics, left Google so he could speak about them freely. Mo Gawdat, former chief business officer of Google X, sees the answer in communities and a shift in values.</p>
+    <p>We see it the same way. Communities naturally heal us as people, and our relationship with the land and with nature.</p>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:64%"></span></div>
+
+<!-- ===================== 6 · STUPNE HĹBKY ===================== -->
+<section class="sekcia" id="hlbka" aria-labelledby="n-hlbka">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Four levels of depth</p>
+      <h2 id="n-hlbka">Everyone chooses how deep to go.</h2>
+    </div>
+    <ol class="stupne" data-rast="skupina">
+      <li class="karta">
+        <span class="poradie">level one</span>
+        <h3>Come to an event</h3>
+        <p>Events, films with discussions, gatherings. A place where you find out you're not alone.</p>
+        <a class="odkaz" href="#pripravujeme">Upcoming events</a>
+      </li>
+      <li class="karta karta--salvia">
+        <span class="poradie">level two</span>
+        <h3>Connect</h3>
+        <p>Mapa prepojenia (Map of Connection) is an app where you find meaningful connections and collaborations for everyday life.</p>
+        <p><span class="cip">Coming soon</span></p>
+        <p>We are also preparing a monthly community call and a project incubator.</p>
+        <a class="odkaz" href="#spojme-sa" data-tema="komunita">Join the waiting list</a>
+      </li>
+      <li class="karta karta--hlbsia">
+        <span class="poradie">level three</span>
+        <h3>Go deeper</h3>
+        <p>Learning for those who want to gain new skills.</p>
+        <ul>
+          <li><a href="https://kompasregeneracie.sk/telo-ako-kompas/">Telo ako kompas (The Body as a Compass) with Dorothe Trassl</a></li>
+          <li><a href="https://kompasregeneracie.sk/projekty/compassionate-inquiry/">Compassionate Inquiry</a></li>
+          <li><a href="#blueprint">Community blueprint, learning sessions</a></li>
+          <li>Circles <span class="cip">Coming soon</span></li>
+        </ul>
+        <a class="odkaz" href="#spojme-sa" data-tema="vzdelavanie">Tell me about the circles</a>
+      </li>
+      <li class="karta karta--tmava">
+        <span class="poradie">level four</span>
+        <h3>Live it</h3>
+        <p>An ecovillage and community living. For those who truly want to live in community.</p>
+        <a class="odkaz" href="#ekodedina">The path to the ecovillage</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:30%"></span></div>
+
+<!-- ===================== 7 · EKODEDINA ===================== -->
+<section class="sekcia" id="ekodedina" aria-labelledby="n-ekodedina">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">Live it</p>
+      <h2 id="n-ekodedina">We are creating an ecovillage.</h2>
+    </div>
+    <div class="dvojica" data-rast="skupina">
+      <div>
+        <p class="uvodny">We have carried this vision for almost ten years, since founding the association Kruh Zeme. We know that shared projects usually fall apart and everyone ends up going their own way.</p>
+        <p>That's why we are writing a community blueprint: an A-to-Z guide to founding a community and keeping it alive.</p>
+      </div>
+      <div>
+        <p>The group formed at our first public workshop and has stayed together since. Today it rests on a stable core of twelve people, with their partners alongside them.</p>
+        <blockquote class="clen">
+          <p class="citat">“Finally someone here is making real a dream I have had for a long time.”</p>
+          <footer>group member</footer>
+        </blockquote>
+      </div>
+    </div>
+
+    <!-- BLUEPRINT · témy sú štítky, Miško ich vo WordPresse pridá alebo uberie -->
+    <div class="karta blueprint" id="blueprint" data-rast>
+      <p class="stitok">Community blueprint</p>
+      <h3>An A-to-Z guide to building a community and a good life</h3>
+      <p class="uvodny">For half a year we have met every two weeks, working through one topic each time. The result is a guide for anyone building an off-grid homestead or arranging a healthier life, even without living in a community.</p>
+      <ul class="temy">
+        <li>Soil and land design</li>
+        <li>Straw, clay, hempcrete, timber houses</li>
+        <li>Sociocracy, holacracy, consent</li>
+        <li>Relationships and resolving conflict</li>
+        <li>Self-sufficiency in food, energy and finances</li>
+        <li>Business plan</li>
+      </ul>
+      <a class="tl tl--tmave" href="#spojme-sa" data-tema="vzdelavanie">Come to a learning session</a>
+    </div>
+
+    <!-- KOMPONENT: CESTA · aktuálnu fázu prepne Miško číslom v data-faza (1 až 5) -->
+    <ol class="cesta" data-faza="1" data-rast="skupina" aria-label="The path to the ecovillage, phase by phase">
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Building the group</strong><span>We are here today. Looking for land.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Land</strong><span>The place where it all takes root.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Site ready</strong><span>Design, utilities, first buildings.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>First season</strong><span>The first year of living together.</span></li>
+      <li><span class="cesta__uzol" aria-hidden="true"></span><strong>Community life</strong><span>The village is alive and helps others come into being.</span></li>
+    </ol>
+
+    <div class="karta karta--salvia" data-rast>
+      <h3>Anyone can join. An hour a week is enough.</h3>
+      <p>Everyone gives one hour a week and we share the work between us. You can join the inner group or just come to the learning sessions.</p>
+      <div class="tlacidla">
+        <a class="tl tl--tmave" href="#spojme-sa" data-tema="komunita">Sign up for an intro call</a>
+        <a class="tl tl--druhe" href="#spojme-sa" data-tema="pozemok">Suggest a piece of land</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pas" aria-hidden="true"><span class="uzol dych-jas" style="--x:40%"></span></div>
+
+<!-- ===================== 9 · FIRMY A PODPOROVATELIA ===================== -->
+<section class="sekcia" id="firmy" aria-labelledby="n-firmy">
+  <div class="obal">
+    <div class="hlava" data-rast>
+      <p class="stitok">For companies and supporters</p>
+      <h2 id="n-firmy">A company is a creative force. We are looking for co-creators.</h2>
+    </div>
+    <div class="mriezka" data-rast="skupina">
+      <article class="karta">
+        <h3>A network of companies that help each other</h3>
+        <p>We believe there is strength in working together. When companies with similar values help each other, they can cut costs, share experience and open doors for one another. The company gains, and so do its partners and the people around them.</p>
+        <p>We are building this network step by step. The first collaborations are forming around our events, the community blueprint and the ecovillage.</p>
+        <a class="odkaz" href="#spojme-sa" data-tema="firma">Join the network</a>
+      </article>
+      <article class="karta">
+        <h3>Events made to measure</h3>
+        <p>We design and deliver transformative events for partners, from concept to execution: production, stage, technical setup, speakers, volunteers and the campaign.</p>
+        <a class="odkaz" href="#spojme-sa" data-tema="firma">Let's talk</a>
+      </article>
+      <article class="karta karta--salvia">
+        <h3>2% of your tax</h3>
+        <p>If you pay tax in Slovakia, you can support us with 2% of your income tax. It costs you nothing and helps fund more events.</p>
+        <a class="odkaz" href="https://kompasregeneracie.sk/podporte-nas/">How to give 2%</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="pas pas--vysoky" aria-hidden="true"><span class="uzol dych-jas" style="--x:50%"></span></div>
+
+<!-- ===================== 10 · SPOJME SA ===================== -->
+<section class="sekcia tma spojme" id="spojme-sa" data-tma aria-labelledby="n-spojme">
+  <div class="obal dvojica">
+    <div data-rast>
+      <p class="stitok">Get in touch</p>
+      <h2 id="n-spojme">What are you working on right now?</h2>
+      <p class="uvodny" style="margin-top:24px">Write us a few words. We'll get back to you and find where our paths meet.</p>
+      <p>Or join the roughly 5,000 people who read our newsletter.</p>
+      <!-- KONTAKT: doplniť e-mail a telefón, napr. <p>Kontakt: <a href="mailto:...">...</a></p> -->
+    </div>
+    <!-- Miško napojí formulár vo WordPresse, polia ostávajú -->
+    <form class="formular" id="formular" action="#" method="post" data-rast data-sprava="The form is being connected. Until then, please message us on social media.">
+      <label for="f-meno">Name</label>
+      <input id="f-meno" name="meno" type="text" autocomplete="name" required>
+      <label for="f-mail">E-mail</label>
+      <input id="f-mail" name="email" type="email" autocomplete="email" required>
+      <label for="f-tema">What interests you</label>
+      <select id="f-tema" name="tema">
+        <option value="podujatia">Events</option>
+        <option value="komunita">Community and ecovillage</option>
+        <option value="vzdelavanie">Learning</option>
+        <option value="firma">I'm a company</option>
+        <option value="pozemok">I have land</option>
+        <option value="ine">Other</option>
+      </select>
+      <label class="suhlas"><input type="checkbox" name="newsletter" value="1"> I'd like to receive the Kompas Regenerácie newsletter.</label>
+      <button class="tl tl--hlavne" type="submit">Send</button>
+      <p class="formular__sprava" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+
+  <footer class="paticka">
+    <div class="obal">
+      <a class="logo" href="./">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M20 5l3.4 11.6L35 20l-11.6 3.4L20 35l-3.4-11.6L5 20l11.6-3.4z" fill="currentColor"/></svg>
+        Kompas Regenerácie
+      </a>
+      <p class="tagline">Towards a regenerative future and inner balance.</p>
+      <p class="semienko no-js-skry">This forest grew from seed <span data-semienko>…</span>.</p>
+    </div>
+  </footer>
+</section>
+
+</main>
+
+<script src="../assets/kompas.js"></script>
+</body>
+</html>

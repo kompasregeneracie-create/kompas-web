@@ -1,0 +1,320 @@
+# -*- coding: utf-8 -*-
+"""
+Vyrobí českú (cz/index.html) a anglickú (en/index.html) verziu z index.html.
+
+Slovenská stránka index.html je zdroj. Postup pri zmene textu:
+  1. zmeň text v index.html,
+  2. uprav príslušný riadok v PREKLADY nižšie (slovenský text musí presne sedieť),
+  3. spusti:  python3 tools/preklad.py
+Ak slovenský text v index.html chýba alebo sa zmenil, skript skončí chybou a povie,
+ktorý riadok treba upraviť. Tak sa nestane, že by niektorý jazyk ostal pozadu.
+"""
+import os, sys
+
+KOREN = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# (slovensky, cesky, anglicky[, kolkokrat sa vyskytuje])
+PREKLADY = [
+    # ---- hlavička stránky ----
+    ('<html lang="sk">', '<html lang="cs">', '<html lang="en">'),
+    ('<title>Kompas Regenerácie – podujatia, komunita a ekodedina</title>',
+     '<title>Kompas Regenerácie – akce, komunita a ekovesnice</title>',
+     '<title>Kompas Regenerácie – events, community and an ecovillage</title>'),
+    ('<meta name="description" content="Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali. Podujatia, vzdelávanie, komunita a ekodedina.">',
+     '<meta name="description" content="Kompas Regenerácie spojuje lidi, kteří chtějí žít jinak, a pomáhá jim, aby to spolu opravdu dokázali. Akce, vzdělávání, komunita a ekovesnice.">',
+     '<meta name="description" content="Kompas Regenerácie brings together people who want to live differently and helps them make it happen, together. Events, learning, community and an ecovillage.">'),
+    ('<link rel="canonical" href="https://kompasregeneracie.sk/">',
+     '<link rel="canonical" href="https://kompasregeneracie.sk/cz/">',
+     '<link rel="canonical" href="https://kompasregeneracie.sk/en/">'),
+    ('<meta property="og:locale" content="sk_SK">', '<meta property="og:locale" content="cs_CZ">', '<meta property="og:locale" content="en_GB">'),
+    ('<meta property="og:url" content="https://kompasregeneracie.sk/">',
+     '<meta property="og:url" content="https://kompasregeneracie.sk/cz/">',
+     '<meta property="og:url" content="https://kompasregeneracie.sk/en/">'),
+    ('<meta property="og:title" content="Kompas Regenerácie – sme prepojení ako les">',
+     '<meta property="og:title" content="Kompas Regenerácie – jsme propojení jako les">',
+     '<meta property="og:title" content="Kompas Regenerácie – we are connected like a forest">'),
+    ('<meta property="og:description" content="Spájame ľudí, ktorí chcú žiť inak, a pomáhame im, aby to spolu naozaj dokázali. Podujatia, vzdelávanie, komunita a ekodedina.">',
+     '<meta property="og:description" content="Spojujeme lidi, kteří chtějí žít jinak, a pomáháme jim, aby to spolu opravdu dokázali. Akce, vzdělávání, komunita a ekovesnice.">',
+     '<meta property="og:description" content="We bring together people who want to live differently and help them make it happen, together. Events, learning, community and an ecovillage.">'),
+    ('"url":"https://kompasregeneracie.sk/","slogan":"Smerom k regeneratívnej budúcnosti a vnútornej rovnováhe."',
+     '"url":"https://kompasregeneracie.sk/cz/","slogan":"Směrem k regenerativní budoucnosti a vnitřní rovnováze."',
+     '"url":"https://kompasregeneracie.sk/en/","slogan":"Towards a regenerative future and inner balance."'),
+    ('href="assets/kompas.css"', 'href="../assets/kompas.css"', 'href="../assets/kompas.css"'),
+    ('src="assets/kompas.js"', 'src="../assets/kompas.js"', 'src="../assets/kompas.js"'),
+
+    # ---- menu ----
+    ('Preskočiť na obsah', 'Přeskočit na obsah', 'Skip to content'),
+    ('aria-label="Kompas Regenerácie, domov"', 'aria-label="Kompas Regenerácie, domů"', 'aria-label="Kompas Regenerácie, home"'),
+    ('aria-label="Hlavné menu"', 'aria-label="Hlavní menu"', 'aria-label="Main menu"'),
+    ('aria-label="Jazyk"', 'aria-label="Jazyk"', 'aria-label="Language"'),
+    ('<a href="#pripravujeme">Podujatia</a>', '<a href="#pripravujeme">Akce</a>', '<a href="#pripravujeme">Events</a>'),
+    ('<a href="#hlbka">Komunita</a>', '<a href="#hlbka">Komunita</a>', '<a href="#hlbka">Community</a>'),
+    ('<a href="#ekodedina">Ekodedina</a>', '<a href="#ekodedina">Ekovesnice</a>', '<a href="#ekodedina">Ecovillage</a>'),
+    ('<a href="#firmy">Pre firmy</a>', '<a href="#firmy">Pro firmy</a>', '<a href="#firmy">For companies</a>'),
+    ('href="#spojme-sa">Spojme sa</a>', 'href="#spojme-sa">Spojme se</a>', 'href="#spojme-sa">Get in touch</a>'),
+
+    # ---- úvod ----
+    ('Sme prepojení ako les. Len sme na to zabudli.', 'Jsme propojení jako les. Jen jsme na to zapomněli.', 'We are connected like a forest. We just forgot.', 2),
+    ('Smerom k&nbsp;regeneratívnej budúcnosti a&nbsp;vnútornej rovnováhe.', 'Směrem k&nbsp;regenerativní budoucnosti a&nbsp;vnitřní rovnováze.', 'Towards a regenerative future and inner balance.', 2),
+    ('Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali.</p>',
+     'Kompas Regenerácie spojuje lidi, kteří chtějí žít jinak, a pomáhá jim, aby to spolu opravdu dokázali.</p>',
+     'Kompas Regenerácie brings together people who want to live differently and helps them make it happen, together.</p>'),
+    ('Príď na podujatie', 'Přijď na akci', 'Come to an event', 2),
+    ('Pridaj sa ku komunite', 'Přidej se ke komunitě', 'Join the community'),
+    ('najblizsie__stitok">Pozývame<', 'najblizsie__stitok">Zveme<', 'najblizsie__stitok">Join us<'),
+    ('<strong>17. 12.</strong> Gábor Maté o ADHD, online', '<strong>17. 12.</strong> Gábor Maté o ADHD, online', '<strong>17 Dec</strong> Gábor Maté on ADHD, online'),
+    ('najblizsie__akcia">Viac →<', 'najblizsie__akcia">Víc →<', 'najblizsie__akcia">More →<'),
+
+    # ---- najbližšie podujatia ----
+    ('<p class="stitok">Čo pripravujeme</p>', '<p class="stitok">Co připravujeme</p>', "<p class=\"stitok\">What's coming</p>"),
+    ('Najbližšie podujatia. Príď medzi nás.', 'Nejbližší akce. Přijď mezi nás.', 'Upcoming events. Come and join us.'),
+    ('<span class="termin">15. 12. 2026</span>', '<span class="termin">15. 12. 2026</span>', '<span class="termin">15 December 2026</span>'),
+    ('<span class="termin-miesto">Bratislava, DK Lúky · 18:00</span>', '<span class="termin-miesto">Bratislava, DK Lúky · 18:00</span>', '<span class="termin-miesto">Bratislava, DK Lúky · 6 pm</span>'),
+    ('<h3>Posledný šaman</h3>', '<h3>Poslední šaman</h3>', '<h3>The Last Shaman</h3>'),
+    ('Slovenská premiéra dokumentárneho filmu. Po ňom ostaneme spolu: diskusia s hosťami a koncert.',
+     'Slovenská premiéra dokumentárního filmu. Po něm zůstaneme spolu: diskuse s hosty a koncert.',
+     'The Slovak premiere of the documentary. Afterwards we stay together for a discussion with guests and a concert.'),
+    ('>Kúpiť vstupenku<', '>Koupit vstupenku<', '>Buy a ticket<'),
+    ('<span class="termin">17. 12. 2026</span>', '<span class="termin">17. 12. 2026</span>', '<span class="termin">17 December 2026</span>'),
+    ('<h3>Gábor Maté o ADHD: otázky a odpovede</h3>', '<h3>Gábor Maté o ADHD: otázky a odpovědi</h3>', '<h3>Gábor Maté on ADHD: questions and answers</h3>'),
+    ('Gábor Maté odpovedá naživo na otázky o ADHD. Potom pokračujeme v kruhoch s praktikmi Compassionate Inquiry.',
+     'Gábor Maté odpovídá živě na otázky o ADHD. Potom pokračujeme v kruzích s praktiky Compassionate Inquiry.',
+     'Gábor Maté answers questions about ADHD live. Afterwards we continue in small circles with Compassionate Inquiry practitioners.'),
+    ('>Registrácia čoskoro<', '>Registrace brzy<', '>Registration opens soon<', 2),
+    ('<span class="termin">Január 2027</span>', '<span class="termin">Leden 2027</span>', '<span class="termin">January 2027</span>'),
+    ('<span class="termin-miesto">Bratislava a Praha</span>', '<span class="termin-miesto">Bratislava a Praha</span>', '<span class="termin-miesto">Bratislava and Prague</span>'),
+    ('Premiéry dokumentárneho filmu v Bratislave a v Prahe.', 'Premiéry dokumentárního filmu v Bratislavě a v Praze.', 'Premieres of the documentary in Bratislava and Prague.'),
+
+    # ---- vieme zhromaždiť ľudí ----
+    ('<p class="stitok">Vieme zhromaždiť ľudí</p>', '<p class="stitok">Umíme shromáždit lidi</p>', '<p class="stitok">We bring people together</p>'),
+    ('Ľudia sa odjakživa stretávali pri ohni. Odtiaľ pochádzajú všetky podujatia.',
+     'Lidé se odjakživa scházeli u ohně. Odtud pocházejí všechna setkání.',
+     'People have always gathered around the fire. That is where every event began.'),
+    ('K tomuto pôvodu sa vraciame. Na našich podujatiach si odnesieš inšpiráciu, ako žiť zdravší a naplnenejší život, a stretneš ľudí, ktorí hľadajú to isté. Často až tam človek zistí, že v tom nie je sám.',
+     'K tomuto původu se vracíme. Na našich akcích si odneseš inspiraci, jak žít zdravější a naplněnější život, a potkáš lidi, kteří hledají totéž. Často teprve tam člověk zjistí, že v tom není sám.',
+     'We return to that origin. At our events you take home inspiration for a healthier, more fulfilling life and meet people who are looking for the same. Often that is where you realise you are not alone in it.'),
+    ('aria-label="Plná sála na konferencii s Gáborom Matém, september 2024"', 'aria-label="Plný sál na konferenci s Gáborem Matém, září 2024"', 'aria-label="A full hall at the conference with Gábor Maté, September 2024"'),
+    ('<p class="stitok">September 2024</p>', '<p class="stitok">Září 2024</p>', '<p class="stitok">September 2024</p>'),
+    ('ľudí na jednej konferencii', 'lidí na jedné konferenci', 'people at a single conference'),
+    ('<span>v sále</span>', '<span>v sále</span>', '<span>in the hall</span>'),
+    ('Trauma, choroby a&nbsp;liečenie v&nbsp;toxickej kultúre', 'Trauma, nemoci a&nbsp;léčení v&nbsp;toxické kultuře', 'Trauma, illness and healing in a toxic culture'),
+    ('Konferencia, na ktorej bol hlavným hosťom Gábor Maté. Ľudia prišli počúvať o traume a o liečení a našli tu jeden druhého.',
+     'Konference, na které byl hlavním hostem Gábor Maté. Lidé přišli poslouchat o traumatu a léčení a našli tu jeden druhého.',
+     'A conference with Gábor Maté as the main guest. People came to hear about trauma and healing, and found each other.'),
+    ('Pozrieť záznam konferencie', 'Podívat se na záznam konference', 'Watch the conference recording'),
+    ('aria-label="Gábor Maté na pódiu"', 'aria-label="Gábor Maté na pódiu"', 'aria-label="Gábor Maté on stage"'),
+    ('aria-label="Ľudia v rozhovore počas prestávky"', 'aria-label="Lidé v rozhovoru během přestávky"', 'aria-label="People talking during the break"'),
+    ('aria-label="Atmosféra v sále"', 'aria-label="Atmosféra v sále"', 'aria-label="The atmosphere in the hall"'),
+    ('Ďalšie podujatia, ktoré sme pripravili', 'Další akce, které jsme připravili', 'Other events we have organised'),
+    ('aria-label="Ďalšie podujatia"', 'aria-label="Další akce"', 'aria-label="Other events"'),
+    ('aria-label="Premietanie filmu o Stanislavovi Grofovi"', 'aria-label="Promítání filmu o Stanislavu Grofovi"', 'aria-label="Screening of the film about Stanislav Grof"'),
+    ('<h3>Grof a Civilizácia</h3>', '<h3>Grof a Civilizace</h3>', '<h3>Grof and Civilizace</h3>'),
+    ('Turné s filmom o životnom diele Stanislava Grofa a s filmom Civilizácia Petra Horkého a egyptológa Miroslava Bártu. Prednášky a diskusie s tvorcom, spolu okolo 800 ľudí.',
+     'Turné s filmem o celoživotním díle Stanislava Grofa a s filmem Civilizace Petra Horkého a egyptologa Miroslava Bárty. Přednášky a diskuse s tvůrcem, celkem kolem 800 lidí.',
+     "A tour with a film about Stanislav Grof's life's work and the film Civilizace by Petr Horký and Egyptologist Miroslav Bárta. Talks and discussions with the filmmaker, around 800 people in total."),
+    ('aria-label="Diskusia po filme Viliama Poltikoviča"', 'aria-label="Diskuse po filmu Viliama Poltikoviče"', "aria-label=\"Discussion after Viliam Poltikovič's film\""),
+    ('<h3>Nový prístup k smrti</h3>', '<h3>Nový přístup ke smrti</h3>', '<h3>A new approach to death</h3>'),
+    ('Premietania filmu Viliama Poltikoviča o téme, ktorej sa bežne vyhýbame. Prišlo okolo 400 ľudí.',
+     'Promítání filmu Viliama Poltikoviče o tématu, kterému se běžně vyhýbáme. Přišlo kolem 400 lidí.',
+     "Screenings of Viliam Poltikovič's film on a subject we usually avoid. Around 400 people came."),
+    ('aria-label="Hostia z kmeňa Huni Kuin"', 'aria-label="Hosté z kmene Huni Kuin"', 'aria-label="Guests from the Huni Kuin people"'),
+    ('<h3>Návšteva z Brazílie</h3>', '<h3>Návštěva z Brazílie</h3>', '<h3>Visitors from Brazil</h3>'),
+    ('Film o návrate kmeňa Huni Kuin k pôvodnej kultúre a prednášky odborníkov z Česka a Slovenska. Hostili sme aj Cacique Álvara Tukana.',
+     'Film o návratu kmene Huni Kuin k původní kultuře a přednášky odborníků z Česka a Slovenska. Hostili jsme i Cacique Álvara Tukana.',
+     'A film about the Huni Kuin people returning to their original culture, with talks by experts from Czechia and Slovakia. We also hosted Cacique Álvaro Tukano.'),
+    ('aria-label="Účastníci desaťdňového kempu"', 'aria-label="Účastníci desetidenního kempu"', 'aria-label="Participants of a ten-day camp"'),
+    ('<h3>Desaťdňové kempy</h3>', '<h3>Desetidenní kempy</h3>', '<h3>Ten-day camps</h3>'),
+    ('Desať dní spolu a jedna otázka: ako tvoriť udržateľnú spoločnosť.', 'Deset dní spolu a jedna otázka: jak tvořit udržitelnou společnost.', 'Ten days together and one question: how do we build a sustainable society?'),
+    ('aria-label="Festival o mužsko-ženských vzťahoch"', 'aria-label="Festival o vztazích mezi muži a ženami"', 'aria-label="Festival on relationships between men and women"'),
+    ('<h3>Päť ročníkov festivalu</h3>', '<h3>Pět ročníků festivalu</h3>', '<h3>Five editions of a festival</h3>'),
+    ('Festival venovaný liečeniu mužsko-ženských vzťahov sme pripravili päťkrát.', 'Festival věnovaný léčení vztahů mezi muži a ženami jsme připravili pětkrát.', 'We have run a festival devoted to healing relationships between men and women five times.'),
+    ('<h3>Priestor, kde má hlas každý</h3>', '<h3>Prostor, kde má hlas každý</h3>', '<h3>A space where everyone has a voice</h3>'),
+    ('Namiesto múru medzi lektorom a publikom tvoríme priestor, kde sa môže vyjadriť každý. Naše podujatia sú skôr komunitné stretnutia: spájajú ľudí so spoločným záujmom, aby si vymenili pohľady a spojili sily.',
+     'Místo zdi mezi lektorem a publikem tvoříme prostor, kde se může vyjádřit každý. Naše akce jsou spíš komunitní setkání: spojují lidi se společným zájmem, aby si vyměnili pohledy a spojili síly.',
+     'Instead of a wall between speaker and audience, we create a space where everyone can speak. Our events are closer to community gatherings: they bring together people with a shared interest to exchange views and join forces.'),
+    ('Ku každému podujatiu pripravujeme nadväzujúci program, aby sa inšpirácia premenila na trvalú zmenu.',
+     'Ke každé akci připravujeme navazující program, aby se inspirace proměnila v trvalou změnu.',
+     'Every event comes with a follow-up programme, so that inspiration turns into lasting change.'),
+
+    # ---- prečo to robíme ----
+    ('aria-label="Michal Marguš, koordinátor Kompasu Regenerácie"', 'aria-label="Michal Marguš, koordinátor Kompasu Regenerácie"', 'aria-label="Michal Marguš, coordinator of Kompas Regenerácie"'),
+    ('koordinátor Kompasu Regenerácie. Žil v štyroch komunitách, robí podujatia a spája ľudí.',
+     'koordinátor Kompasu Regenerácie. Žil ve čtyřech komunitách, pořádá akce a spojuje lidi.',
+     'coordinator of Kompas Regenerácie. He has lived in four communities, organises events and brings people together.'),
+    ('Viac ako desať rokov mení veci aj mimo sál. Pomáhal založiť iniciatívy Deti nepočkajú, ktorá zastavila novelu obmedzujúcu inovácie zdola v školstve, Nestrácajme čas, ktorá priniesla prvú klimatickú petíciu adresovanú vláde, a Stredoeurópske medzináboženské fórum.',
+     'Víc než deset let mění věci i mimo sály. Pomáhal založit iniciativy Deti nepočkajú, která zastavila novelu omezující inovace zdola ve školství, Nestrácajme čas, která přinesla první klimatickou petici adresovanou vládě, a Středoevropské mezináboženské fórum.',
+     "For more than ten years he has been changing things beyond the event hall too. He helped found Deti nepočkajú (Children Won't Wait), which stopped an amendment restricting grassroots innovation in schools; Nestrácajme čas (Let's Not Waste Time), which brought the first climate petition addressed to the government; and the Central European Interreligious Forum."),
+    ('<p class="stitok">Prečo to robíme</p>', '<p class="stitok">Proč to děláme</p>', '<p class="stitok">Why we do this</p>'),
+    ('Dá sa žiť tisíckrát lepšie. Zažil som to.', 'Dá se žít tisíckrát lépe. Zažil jsem to.', "Life can be a thousand times better. I've lived it."),
+    ('Ľudia si neuvedomujú, akú obrovskú silu majú. Silu lásky, silu spolupráce.', 'Lidé si neuvědomují, jakou obrovskou sílu mají. Sílu lásky, sílu spolupráce.', "People don't realise how much power they have. The power of love, the power of working together."),
+    ('Zažil som to v prvých komunitách svojho života. Boli sme v prírode, v pokoji, nikto sa nikam neponáhľal. Suroviny sme nakupovali vo veľkom, hrach, šošovicu, a jedlo pre desať ľudí vyšlo na pár eur. Varilo sa na dreve.',
+     'Zažil jsem to v prvních komunitách svého života. Byli jsme v přírodě, v klidu, nikdo nikam nespěchal. Suroviny jsme nakupovali ve velkém, hrách, čočku, a jídlo pro deset lidí vyšlo na pár eur. Vařilo se na dřevě.',
+     'I experienced it in the first communities of my life. We were out in nature, at peace, nobody in a hurry. We bought food in bulk, peas, lentils, and a meal for ten people cost a few euros. We cooked over wood.'),
+    ('Nedialo sa tam nič špeciálne. Žiadne hippiesáctvo, obyčajná ľudská dobrota. Keď zo života zmizne to, čo nám robí stres, začne sa v človeku prebúdzať láskavosť, talent a chuť spolupracovať.',
+     'Nedělo se tam nic zvláštního. Žádné hipísáctví, obyčejná lidská dobrota. Když ze života zmizí to, co nám působí stres, začne se v člověku probouzet laskavost, talent a chuť spolupracovat.',
+     'Nothing special happened there. No hippie stuff, just ordinary human kindness. When the things that stress us disappear from life, kindness, talent and the will to cooperate start to wake up in a person.'),
+    ('Neskôr sme viacerí bývali v jednom veľkom dome a spolu tvorili permakultúrnu záhradu. Zrazu to nebola práca, všetko bola zábava. Kto nebol kutil, priučil sa od tých, čo to vedeli lepšie.',
+     'Později nás víc bydlelo v jednom velkém domě a spolu jsme tvořili permakulturní zahradu. Najednou to nebyla práce, všechno byla zábava. Kdo nebyl kutil, přiučil se od těch, kdo to uměli líp.',
+     "Later several of us lived in one big house and built a permaculture garden together. Suddenly it wasn't work, it was all fun. Those who weren't handy learned from those who knew better."),
+    ('V zdravom prostredí sa človek môže začať liečiť. A zistí, že je oveľa schopnejší a šikovnejší, než si myslel.',
+     'Ve zdravém prostředí se člověk může začít léčit. A zjistí, že je mnohem schopnější a šikovnější, než si myslel.',
+     'In a healthy environment a person can begin to heal. And discover they are far more capable than they thought.'),
+    ('Slovensko má na to unikátnu príležitosť. Sme moderná krajina a pritom skoro každý z nás má len generáciu či dve dozadu zážitok dediny a komunity.',
+     'Slovensko k tomu má jedinečnou příležitost. Jsme moderní země, a přitom skoro každý z nás má jen generaci či dvě zpátky zkušenost vesnice a komunity.',
+     'Slovakia has a unique opportunity here. We are a modern country, and yet almost all of us are only a generation or two away from village and community life.'),
+
+    # ---- prečo práve teraz ----
+    ('<p class="stitok">Prečo práve teraz</p>', '<p class="stitok">Proč právě teď</p>', '<p class="stitok">Why now</p>'),
+    ('V&nbsp;dobe umelej inteligencie veríme v&nbsp;rozvoj ľudského potenciálu.', 'V&nbsp;době umělé inteligence věříme v&nbsp;rozvoj lidského potenciálu.', 'In the age of artificial intelligence, we believe in developing human potential.'),
+    ('Ešte sme neobjavili, čo je skutočná ľudská a emočná inteligencia, a už ju odovzdávame strojom. Do toho klíma: žijeme v systéme, ktorý ničí prírodu, aj keď to nikto z nás nechce.',
+     'Ještě jsme neobjevili, co je skutečná lidská a emoční inteligence, a už ji předáváme strojům. K tomu klima: žijeme v systému, který ničí přírodu, i když to nikdo z nás nechce.',
+     'We have not yet discovered what real human and emotional intelligence is, and we are already handing it over to machines. Then there is the climate: we live in a system that destroys nature, even though none of us wants that.'),
+    ('Pred rizikami umelej inteligencie varujú aj ľudia, ktorí ju sami vytvárali. Geoffrey Hinton, nositeľ Nobelovej ceny za fyziku, odišiel z Googlu, aby o nich mohol hovoriť slobodne. Mo Gawdat, bývalý obchodný riaditeľ Google X, vidí riešenie v komunitách a v zmene hodnôt.',
+     'Před riziky umělé inteligence varují i lidé, kteří ji sami vytvářeli. Geoffrey Hinton, nositel Nobelovy ceny za fyziku, odešel z Googlu, aby o nich mohl mluvit svobodně. Mo Gawdat, bývalý obchodní ředitel Google X, vidí řešení v komunitách a ve změně hodnot.',
+     'Even people who built artificial intelligence warn about its risks. Geoffrey Hinton, Nobel laureate in physics, left Google so he could speak about them freely. Mo Gawdat, former chief business officer of Google X, sees the answer in communities and a shift in values.'),
+    ('Vidíme to rovnako. Komunity prirodzene liečia nás ľudí aj náš vzťah so zemou a s prírodou.',
+     'Vidíme to stejně. Komunity přirozeně léčí nás lidi i náš vztah k zemi a k přírodě.',
+     'We see it the same way. Communities naturally heal us as people, and our relationship with the land and with nature.'),
+
+    # ---- stupne hĺbky ----
+    ('<p class="stitok">Štyri stupne hĺbky</p>', '<p class="stitok">Čtyři stupně hloubky</p>', '<p class="stitok">Four levels of depth</p>'),
+    ('Každý si zvolí, ako hlboko chce ísť.', 'Každý si zvolí, jak hluboko chce jít.', 'Everyone chooses how deep to go.'),
+    ('<span class="poradie">prvý stupeň</span>', '<span class="poradie">první stupeň</span>', '<span class="poradie">level one</span>'),
+    ('<span class="poradie">druhý stupeň</span>', '<span class="poradie">druhý stupeň</span>', '<span class="poradie">level two</span>'),
+    ('<span class="poradie">tretí stupeň</span>', '<span class="poradie">třetí stupeň</span>', '<span class="poradie">level three</span>'),
+    ('<span class="poradie">štvrtý stupeň</span>', '<span class="poradie">čtvrtý stupeň</span>', '<span class="poradie">level four</span>'),
+    ('Podujatia, filmy s diskusiou, stretnutia. Miesto, kde zažiješ, že v tom nie si sám.',
+     'Akce, filmy s diskusí, setkání. Místo, kde zažiješ, že v tom nejsi sám.',
+     "Events, films with discussions, gatherings. A place where you find out you're not alone."),
+    ('href="#pripravujeme">Najbližšie podujatia</a>', 'href="#pripravujeme">Nejbližší akce</a>', 'href="#pripravujeme">Upcoming events</a>'),
+    ('<h3>Prepoj sa</h3>', '<h3>Propoj se</h3>', '<h3>Connect</h3>'),
+    ('Mapa prepojenia je appka, v ktorej nájdeš zmysluplné prepojenia a spolupráce pre každodenný život.',
+     'Mapa prepojenia je aplikace, ve které najdeš smysluplná propojení a spolupráce pro každodenní život.',
+     'Mapa prepojenia (Map of Connection) is an app where you find meaningful connections and collaborations for everyday life.'),
+    ('<span class="cip">Pripravujeme</span>', '<span class="cip">Připravujeme</span>', '<span class="cip">Coming soon</span>', 2),
+    ('Chystáme aj mesačný komunitný call a projektový inkubátor.', 'Chystáme i měsíční komunitní call a projektový inkubátor.', 'We are also preparing a monthly community call and a project incubator.'),
+    ('Zapísať sa medzi záujemcov', 'Zapsat se mezi zájemce', 'Join the waiting list'),
+    ('<h3>Choď do hĺbky</h3>', '<h3>Jdi do hloubky</h3>', '<h3>Go deeper</h3>'),
+    ('Vzdelávanie pre tých, ktorí si chcú osvojiť nové zručnosti.', 'Vzdělávání pro ty, kdo si chtějí osvojit nové dovednosti.', 'Learning for those who want to gain new skills.'),
+    ('>Telo ako kompas s Dorothe Trassl<', '>Telo ako kompas s Dorothe Trassl<', '>Telo ako kompas (The Body as a Compass) with Dorothe Trassl<'),
+    ('Komunitný blueprint, vzdelávacie stretnutia', 'Komunitní blueprint, vzdělávací setkání', 'Community blueprint, learning sessions'),
+    ('<li>Kruhy <span', '<li>Kruhy <span', '<li>Circles <span'),
+    ('Chcem vedieť o kruhoch', 'Chci vědět o kruzích', 'Tell me about the circles'),
+    ('<h3>Ži to</h3>', '<h3>Žij to</h3>', '<h3>Live it</h3>'),
+    ('Ekodedina a komunitné bývanie. Pre tých, ktorí chcú žiť komunitne naozaj.',
+     'Ekovesnice a komunitní bydlení. Pro ty, kdo chtějí žít komunitně doopravdy.',
+     'An ecovillage and community living. For those who truly want to live in community.'),
+    ('Cesta k ekodedine</a>', 'Cesta k ekovesnici</a>', 'The path to the ecovillage</a>'),
+
+    # ---- ekodedina ----
+    ('<p class="stitok">Ži to</p>', '<p class="stitok">Žij to</p>', '<p class="stitok">Live it</p>'),
+    ('Tvoríme ekodedinu.', 'Tvoříme ekovesnici.', 'We are creating an ecovillage.'),
+    ('Túto víziu nosíme skoro desať rokov, od založenia spolku Kruh Zeme. Vieme, že spoločné veci sa väčšinou rozpadnú a každý si nakoniec ide svoje.',
+     'Tuto vizi neseme skoro deset let, od založení spolku Kruh Zeme. Víme, že společné věci se většinou rozpadnou a každý nakonec jde svou cestou.',
+     'We have carried this vision for almost ten years, since founding the association Kruh Zeme. We know that shared projects usually fall apart and everyone ends up going their own way.'),
+    ('Preto tvoríme komunitný blueprint: návod od A po Z, ako komunitu založiť a udržať pri živote.',
+     'Proto tvoříme komunitní blueprint: návod od A do Z, jak komunitu založit a udržet při životě.',
+     "That's why we are writing a community blueprint: an A-to-Z guide to founding a community and keeping it alive."),
+    ('Skupina vznikla na prvom verejnom workshope a odvtedy sa nerozišla. Dnes ju drží stabilné jadro dvanástich ľudí, s ktorými kráčajú aj ich partneri.',
+     'Skupina vznikla na prvním veřejném workshopu a od té doby se nerozešla. Dnes ji drží stabilní jádro dvanácti lidí, se kterými jdou i jejich partneři.',
+     'The group formed at our first public workshop and has stayed together since. Today it rests on a stable core of twelve people, with their partners alongside them.'),
+    ('„Konečne tu niekto realizuje sen, ktorý mám už dlho.“', '„Konečně tu někdo uskutečňuje sen, který mám už dlouho.“', '“Finally someone here is making real a dream I have had for a long time.”'),
+    ('<footer>člen skupiny</footer>', '<footer>člen skupiny</footer>', '<footer>group member</footer>'),
+    ('<p class="stitok">Komunitný blueprint</p>', '<p class="stitok">Komunitní blueprint</p>', '<p class="stitok">Community blueprint</p>'),
+    ('Návod od A po Z, ako postaviť komunitu aj dobrý život', 'Návod od A do Z, jak postavit komunitu i dobrý život', 'An A-to-Z guide to building a community and a good life'),
+    ('Už pol roka sa stretávame každé dva týždne a zakaždým spolu prejdeme jednu tému. Z toho vzniká návod, ktorý sa zíde každému, kto chce stavať off-grid statok alebo si zariadiť život zdravšie, aj keď v komunite žiť nechce.',
+     'Už půl roku se scházíme každé dva týdny a pokaždé spolu projdeme jedno téma. Z toho vzniká návod, který se hodí každému, kdo chce stavět off-grid usedlost nebo si zařídit život zdravěji, i když v komunitě žít nechce.',
+     'For half a year we have met every two weeks, working through one topic each time. The result is a guide for anyone building an off-grid homestead or arranging a healthier life, even without living in a community.'),
+    ('<li>Pôda a jej dizajn</li>', '<li>Půda a její design</li>', '<li>Soil and land design</li>'),
+    ('<li>Slama, hlina, konopný betón, drevostavby</li>', '<li>Sláma, hlína, konopný beton, dřevostavby</li>', '<li>Straw, clay, hempcrete, timber houses</li>'),
+    ('<li>Sociokracia, holokracia, konsent</li>', '<li>Sociokracie, holakracie, konsent</li>', '<li>Sociocracy, holacracy, consent</li>'),
+    ('<li>Vzťahy a riešenie konfliktov</li>', '<li>Vztahy a řešení konfliktů</li>', '<li>Relationships and resolving conflict</li>'),
+    ('<li>Sebestačnosť v potravinách, energii a financiách</li>', '<li>Soběstačnost v potravinách, energii a financích</li>', '<li>Self-sufficiency in food, energy and finances</li>'),
+    ('<li>Biznis plán</li>', '<li>Business plán</li>', '<li>Business plan</li>'),
+    ('Prísť na vzdelávacie stretnutie', 'Přijít na vzdělávací setkání', 'Come to a learning session'),
+    ('aria-label="Cesta k ekodedine po fázach"', 'aria-label="Cesta k ekovesnici po fázích"', 'aria-label="The path to the ecovillage, phase by phase"'),
+    ('<strong>Základ skupiny</strong><span>Dnes sme tu. Hľadáme pozemok.</span>', '<strong>Základ skupiny</strong><span>Dnes jsme tady. Hledáme pozemek.</span>', '<strong>Building the group</strong><span>We are here today. Looking for land.</span>'),
+    ('<strong>Pozemok</strong><span>Miesto, kde to celé zakorení.</span>', '<strong>Pozemek</strong><span>Místo, kde to celé zakoření.</span>', '<strong>Land</strong><span>The place where it all takes root.</span>'),
+    ('<strong>Miesto pripravené</strong><span>Projekt, siete, prvé stavby.</span>', '<strong>Místo připravené</strong><span>Projekt, sítě, první stavby.</span>', '<strong>Site ready</strong><span>Design, utilities, first buildings.</span>'),
+    ('<strong>Prvá sezóna</strong><span>Prvý rok spoločného života.</span>', '<strong>První sezóna</strong><span>První rok společného života.</span>', '<strong>First season</strong><span>The first year of living together.</span>'),
+    ('<strong>Život komunity</strong><span>Dedina žije a pomáha vzniknúť ďalším.</span>', '<strong>Život komunity</strong><span>Vesnice žije a pomáhá vzniknout dalším.</span>', '<strong>Community life</strong><span>The village is alive and helps others come into being.</span>'),
+    ('Pridať sa môže ktokoľvek. Stačí hodina do&nbsp;týždňa.', 'Přidat se může kdokoli. Stačí hodina týdně.', 'Anyone can join. An hour a week is enough.'),
+    ('Každý daruje jednu hodinu týždenne a prácu si medzi sebou delíme. Môžeš prísť do vnútornej skupiny alebo len na vzdelávacie stretnutia.',
+     'Každý daruje jednu hodinu týdně a práci si mezi sebou dělíme. Můžeš přijít do vnitřní skupiny, nebo jen na vzdělávací setkání.',
+     'Everyone gives one hour a week and we share the work between us. You can join the inner group or just come to the learning sessions.'),
+    ('Prihlásiť sa na úvodný call', 'Přihlásit se na úvodní call', 'Sign up for an intro call'),
+    ('Poslať tip na pozemok', 'Poslat tip na pozemek', 'Suggest a piece of land'),
+
+    # ---- firmy ----
+    ('<p class="stitok">Pre firmy a podporovateľov</p>', '<p class="stitok">Pro firmy a podporovatele</p>', '<p class="stitok">For companies and supporters</p>'),
+    ('Firma je tvorivý subjekt. Hľadáme spolutvorcov.', 'Firma je tvůrčí subjekt. Hledáme spolutvůrce.', 'A company is a creative force. We are looking for co-creators.'),
+    ('<h3>Sieť firiem, ktoré si pomáhajú</h3>', '<h3>Síť firem, které si pomáhají</h3>', '<h3>A network of companies that help each other</h3>'),
+    ('Veríme, že v spolupráci je sila. Keď si firmy s podobnými hodnotami pomáhajú, môžu znížiť náklady, deliť sa o skúsenosti a otvárať si dvere. Získa firma, jej partneri aj ľudia okolo nich.',
+     'Věříme, že ve spolupráci je síla. Když si firmy s podobnými hodnotami pomáhají, mohou snížit náklady, sdílet zkušenosti a otevírat si dveře. Získá firma, její partneři i lidé kolem nich.',
+     'We believe there is strength in working together. When companies with similar values help each other, they can cut costs, share experience and open doors for one another. The company gains, and so do its partners and the people around them.'),
+    ('Takúto sieť partnerov postupne tvoríme. Prvé spolupráce vznikajú pri podujatiach, komunitnom blueprinte a ekodedine.',
+     'Takovou síť partnerů postupně tvoříme. První spolupráce vznikají u akcí, komunitního blueprintu a ekovesnice.',
+     'We are building this network step by step. The first collaborations are forming around our events, the community blueprint and the ecovillage.'),
+    ('>Pridať sa do siete<', '>Přidat se do sítě<', '>Join the network<'),
+    ('<h3>Podujatie na mieru</h3>', '<h3>Akce na míru</h3>', '<h3>Events made to measure</h3>'),
+    ('Pre partnerov navrhujeme a realizujeme transformačné podujatia od konceptu po realizáciu: produkcia, pódium, technika, rečníci, dobrovoľníci aj kampaň.',
+     'Pro partnery navrhujeme a realizujeme transformační akce od konceptu po realizaci: produkce, pódium, technika, řečníci, dobrovolníci i kampaň.',
+     'We design and deliver transformative events for partners, from concept to execution: production, stage, technical setup, speakers, volunteers and the campaign.'),
+    ('>Porozprávajme sa<', '>Pojďme si promluvit<', ">Let's talk<"),
+    ('<h3>2 % z dane</h3>', '<h3>2 % z daně</h3>', '<h3>2% of your tax</h3>'),
+    ('Podporiť nás môžeš aj dvoma percentami z dane. Nič ťa to nestojí a pomôže to ďalším podujatiam.',
+     'Pokud platíš daně na Slovensku, můžeš nás podpořit dvěma procenty z daně. Nic tě to nestojí a pomůže to dalším akcím.',
+     'If you pay tax in Slovakia, you can support us with 2% of your income tax. It costs you nothing and helps fund more events.'),
+    ('>Ako darovať 2 %<', '>Jak darovat 2 %<', '>How to give 2%<'),
+
+    # ---- spojme sa ----
+    ('<p class="stitok">Spojme sa</p>', '<p class="stitok">Spojme se</p>', '<p class="stitok">Get in touch</p>'),
+    ('Čo práve riešiš?', 'Co právě řešíš?', 'What are you working on right now?'),
+    ('Napíš nám pár slov. Ozveme sa a nájdeme miesto, kde sa naše cesty stretnú.', 'Napiš nám pár slov. Ozveme se a najdeme místo, kde se naše cesty potkají.', "Write us a few words. We'll get back to you and find where our paths meet."),
+    ('Alebo sa pridaj k približne 5 000 ľuďom, ktorí čítajú náš newsletter.', 'Nebo se přidej ke zhruba 5 000 lidem, kteří čtou náš newsletter.', 'Or join the roughly 5,000 people who read our newsletter.'),
+    ('data-sprava="Formulár sa práve pripája. Kým bude hotový, napíš nám prosím na sociálnych sieťach."',
+     'data-sprava="Formulář se právě připojuje. Než bude hotový, napiš nám prosím na sociálních sítích."',
+     'data-sprava="The form is being connected. Until then, please message us on social media."'),
+    ('<label for="f-meno">Meno</label>', '<label for="f-meno">Jméno</label>', '<label for="f-meno">Name</label>'),
+    ('<label for="f-tema">Čo ťa zaujíma</label>', '<label for="f-tema">Co tě zajímá</label>', '<label for="f-tema">What interests you</label>'),
+    ('<option value="podujatia">Podujatia</option>', '<option value="podujatia">Akce</option>', '<option value="podujatia">Events</option>'),
+    ('<option value="komunita">Komunita a ekodedina</option>', '<option value="komunita">Komunita a ekovesnice</option>', '<option value="komunita">Community and ecovillage</option>'),
+    ('<option value="vzdelavanie">Vzdelávanie</option>', '<option value="vzdelavanie">Vzdělávání</option>', '<option value="vzdelavanie">Learning</option>'),
+    ('<option value="firma">Som firma</option>', '<option value="firma">Jsem firma</option>', "<option value=\"firma\">I'm a company</option>"),
+    ('<option value="pozemok">Mám pozemok</option>', '<option value="pozemok">Mám pozemek</option>', '<option value="pozemok">I have land</option>'),
+    ('<option value="ine">Iné</option>', '<option value="ine">Jiné</option>', '<option value="ine">Other</option>'),
+    ('Chcem dostávať newsletter Kompasu Regenerácie.', 'Chci dostávat newsletter Kompasu Regenerácie.', "I'd like to receive the Kompas Regenerácie newsletter."),
+    ('type="submit">Odoslať</button>', 'type="submit">Odeslat</button>', 'type="submit">Send</button>'),
+    ('Tento les vyrástol zo semienka', 'Tento les vyrostl ze semínka', 'This forest grew from seed'),
+]
+
+JAZYKY_SK = '<!--JAZYKY--><nav class="jazyky" aria-label="Jazyk"><a href="./" lang="sk" hreflang="sk" aria-current="page">SK</a><a href="cz/" lang="cs" hreflang="cs">CZ</a><a href="en/" lang="en" hreflang="en">EN</a></nav><!--/JAZYKY-->'
+JAZYKY = {
+    'cz': '<!--JAZYKY--><nav class="jazyky" aria-label="Jazyk"><a href="../" lang="sk" hreflang="sk">SK</a><a href="./" lang="cs" hreflang="cs" aria-current="page">CZ</a><a href="../en/" lang="en" hreflang="en">EN</a></nav><!--/JAZYKY-->',
+    'en': '<!--JAZYKY--><nav class="jazyky" aria-label="Jazyk"><a href="../" lang="sk" hreflang="sk">SK</a><a href="../cz/" lang="cs" hreflang="cs">CZ</a><a href="./" lang="en" hreflang="en" aria-current="page">EN</a></nav><!--/JAZYKY-->',
+}
+
+def vyrob(jazyk, stlpec):
+    s = open(os.path.join(KOREN, 'index.html'), encoding='utf-8').read()
+    chyby = []
+    if s.count(JAZYKY_SK) != 1:
+        chyby.append('prepínač jazykov v index.html sa zmenil, uprav JAZYKY_SK')
+    s = s.replace(JAZYKY_SK, JAZYKY[jazyk])
+    for riadok in PREKLADY:
+        sk, ciel, pocet = riadok[0], riadok[stlpec], (riadok[3] if len(riadok) > 3 else 1)
+        n = s.count(sk)
+        if n != pocet:
+            chyby.append('%dx namiesto %dx: %s' % (n, pocet, sk[:90]))
+            continue
+        s = s.replace(sk, ciel)
+    if chyby:
+        print('Preklad (%s) sa nevyrobil. Tieto slovenské texty v index.html nesedia:' % jazyk)
+        for c in chyby: print('  -', c)
+        sys.exit(1)
+    os.makedirs(os.path.join(KOREN, jazyk), exist_ok=True)
+    open(os.path.join(KOREN, jazyk, 'index.html'), 'w', encoding='utf-8').write(s)
+    print('hotovo:', jazyk + '/index.html')
+
+if __name__ == '__main__':
+    vyrob('cz', 1)
+    vyrob('en', 2)

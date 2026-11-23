@@ -2,7 +2,9 @@
 
 Nový web kompasregeneracie.sk. Zatiaľ len úvodná stránka, podstránky ostávajú na starom WordPresse.
 
-- `index.html` – úvodná stránka (HTML, CSS aj JavaScript v jednom súbore, bez knižníc)
+- `index.html` – úvodná stránka po slovensky (zdroj)
+- `cz/index.html`, `en/index.html` – česká a anglická verzia, vyrába ich `python3 tools/preklad.py`
+- `assets/kompas.css`, `assets/kompas.js` – spoločný vzhľad a živá vrstva, bez knižníc
 - `CLAUDE.md` – pravidlá pre každého, kto web upravuje cez Claude
 
 ## Ako sa mení

@@ -18,6 +18,13 @@
 - Animácia nikdy nejde cez text. Rešpektovať prefers-reduced-motion. Stránka funguje aj bez JavaScriptu.
 - Animácie sa zastavia, keď nie sú vidieť. Žiadne ťažké knižnice ani video na pozadí.
 
+## Jazyky (SK, CZ, EN)
+- Zdroj je slovenská stránka `index.html`. Česká `cz/index.html` a anglická `en/index.html` sa nikdy neupravujú ručne.
+- Pri zmene textu: uprav `index.html`, potom príslušný riadok v `tools/preklad.py` (slovenský text musí presne sedieť) a spusti `python3 tools/preklad.py`. Skript skončí chybou, ak niektorý slovenský text nesedí, aby žiadny jazyk neostal pozadu.
+- Nový text = nový riadok v `PREKLADY` s českým aj anglickým prekladom.
+- Štýly sú v `assets/kompas.css`, živá vrstva v `assets/kompas.js`, spoločné pre všetky jazyky.
+- Lokálne testovať cez server (`python3 -m http.server`), lebo odkazy na `cz/` a `en/` cez file:// nefungujú.
+
 ## Postup pri zmene
 - Každú zmenu skontrolovať na mobile (390 px) aj počítači, bez chýb v konzole.
 - Pred zverejnením na ostrý web ukázať Michalovi náhľad.

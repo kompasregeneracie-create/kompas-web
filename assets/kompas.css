@@ -1,0 +1,414 @@
+/* =========================================================
+   DIZAJNOVÝ SYSTÉM · farby, písma, rytmus
+   ========================================================= */
+:root{
+  --krem:#fffbf6;
+  --les:#183533;
+  --salvia:#8eaa93;
+  --salvia-text:#557359;      /* šalviová na malý text, kvôli kontrastu */
+  --salvia-jemna:#eef3ef;
+  --salvia-hlbsia:#dfe9e1;
+  --broskyna:#ffe6db;
+  --oranz:#ff9c00;
+  --piesok:#f6f2ea;
+  --biela:#ffffff;
+
+  --pismo-nadpis:"Blazface","Fraunces",Georgia,serif;
+  --pismo-text:"Sora","Inter",system-ui,sans-serif;
+
+  --r:20px;
+  --r-velky:28px;
+  --tien:0 1px 2px rgba(24,53,51,.04),0 10px 28px rgba(24,53,51,.07);
+
+  --dych:10s;                 /* jeden nádych a výdych */
+  --dych-posun:0ms;           /* nastaví JS, aby všetko dýchalo naraz */
+  --rast:1.1s;                /* rozvinutie sekcie */
+  --krivka:cubic-bezier(.2,.65,.2,1);
+
+  /* čas a obdobie: prepisujú sa nižšie cez html[data-cas], html[data-obdobie] */
+  --prechod:linear-gradient(90deg,#122b29 0%,#244a42 22%,#4a7a69 50%,#244a42 78%,#122b29 100%);
+  --pozadie:#fffbf6;
+  --ziara:rgba(255,230,219,.9);
+  --ziara-x:50%;
+  --ziara-y:0%;
+  --vlakno:142,170,147;       /* farba vlákien podhubia (r,g,b) */
+  --vytrus:142,170,147;       /* farba výtrusov na koncoch vlákien */
+  --vlakno-sila:1;            /* priehľadnosť vlákien, zima je bledšia */
+}
+
+/* KOMPONENT: ČAS · svetlo podľa hodiny */
+html[data-cas="rano"]{--pozadie:#fffaf3;--ziara:rgba(255,230,219,.95);--ziara-x:12%;--ziara-y:92%}
+html[data-cas="den"]{--pozadie:#fffbf6;--ziara:rgba(142,170,147,.16);--ziara-x:50%;--ziara-y:-6%}
+html[data-cas="vecer"]{--pozadie:#fff6ec;--ziara:rgba(255,156,0,.2);--ziara-x:88%;--ziara-y:96%}
+html[data-cas="noc"]{--pozadie:#f5f0e7;--ziara:rgba(142,170,147,.3);--ziara-x:84%;--ziara-y:10%}
+/* KOMPONENT: ČAS · ročné obdobie */
+html[data-obdobie="jar"]{--vlakno:142,170,147;--vytrus:120,168,128}
+html[data-obdobie="leto"]{--vlakno:128,160,134;--vytrus:255,200,170}
+html[data-obdobie="jesen"]{--vlakno:142,170,147;--vytrus:255,156,0}
+html[data-obdobie="zima"]{--vlakno:160,180,166;--vytrus:255,251,246;--vlakno-sila:.8}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;position:relative;overflow-x:hidden;
+  background:var(--pozadie);color:var(--les);
+  font-family:var(--pismo-text);font-size:1.0625rem;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  transition:background-color 2.5s ease;
+}
+img,svg{max-width:100%}
+h1,h2,h3{font-family:var(--pismo-nadpis);font-weight:600;line-height:1.08;letter-spacing:-.015em;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.6rem,6.6vw,4.7rem);line-height:1.03}
+h2{font-size:clamp(1.9rem,4.4vw,3.1rem)}
+h3{font-size:clamp(1.25rem,2.2vw,1.5rem);line-height:1.2}
+p{margin:0 0 1.1em;max-width:62ch;text-wrap:pretty}
+p:last-child{margin-bottom:0}
+a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
+:focus-visible{outline:3px solid currentColor;outline-offset:3px;border-radius:6px}
+
+.preskoc{position:absolute;left:-999px;top:0;background:var(--les);color:var(--krem);padding:12px 18px;z-index:10;border-radius:0 0 12px 0}
+.preskoc:focus{left:0}
+
+.obal{max-width:1120px;margin-inline:auto;padding-inline:clamp(20px,5vw,40px);position:relative;z-index:2}
+.obal--uzky{max-width:800px}
+.sekcia{padding-block:clamp(40px,6vw,72px)}
+.tma{background:var(--les);color:var(--krem)}
+
+.stitok{
+  display:flex;align-items:center;gap:10px;margin:0 0 18px;
+  font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--salvia-text);
+}
+.tma .stitok{color:var(--salvia)}
+.uvodny{font-size:clamp(1.1rem,1.6vw,1.25rem);line-height:1.65}
+.hlava{margin-bottom:clamp(28px,4vw,48px)}
+.hlava h2{max-width:20ch}
+.hlava p{margin-top:20px}
+
+/* tlačidlá */
+.tl{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;
+  padding:13px 26px;border-radius:999px;border:1.5px solid transparent;
+  font:600 1rem/1.2 var(--pismo-text);text-decoration:none;cursor:pointer;
+  transition:transform .35s var(--krivka),background-color .35s,box-shadow .35s;
+}
+.tl:hover{transform:translateY(-2px)}
+.tl--hlavne{background:var(--oranz);color:var(--les);box-shadow:0 6px 20px rgba(255,156,0,.28)}
+.tl--druhe{border-color:currentColor;color:inherit;background:transparent}
+.tl--tmave{background:var(--les);color:var(--krem)}
+.tlacidla{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.odkaz{font-weight:600}
+.doplnit{
+  display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.02em;line-height:1.3;
+  border:1px dashed currentColor;border-radius:8px;padding:3px 9px;opacity:.8;margin-top:10px;
+}
+.cip{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--salvia-jemna);color:var(--les);border-radius:999px;padding:5px 12px}
+.tma .cip,.karta--tmava .cip{background:rgba(142,170,147,.22);color:var(--krem)}
+
+/* karty */
+.karta{background:var(--biela);border-radius:var(--r);padding:clamp(22px,3vw,30px);box-shadow:var(--tien)}
+.karta--salvia{background:var(--salvia-jemna);box-shadow:none}
+.karta--hlbsia{background:var(--salvia-hlbsia);box-shadow:none}
+.karta--tmava{background:var(--les);color:var(--krem);box-shadow:none}
+.karta--broskyna{background:var(--broskyna);box-shadow:none}
+.karta h3{margin-bottom:10px}
+.karta p{font-size:1rem;line-height:1.6}
+.karta .citat{font-size:clamp(1.2rem,2.2vw,1.5rem);line-height:1.35}
+.mriezka{display:grid;gap:clamp(14px,2vw,22px);grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+
+/* tenký pás úplne hore, rovnaký prechod ako hlavný nadpis */
+.pasik-hore{height:6px;background:var(--prechod);position:relative;z-index:3}
+
+/* hlavička */
+.hlavicka__prava{display:flex;align-items:center;gap:clamp(14px,3vw,28px)}
+.jazyky{display:flex;gap:2px;font-size:.76rem;font-weight:600;letter-spacing:.08em}
+.jazyky a{display:inline-flex;align-items:center;min-height:36px;padding:0 8px;border-radius:8px;text-decoration:none;color:var(--salvia-text)}
+.jazyky a:hover{color:var(--les)}
+.jazyky a[aria-current]{color:var(--les);background:var(--salvia-jemna)}
+.hlavicka{padding-block:20px}
+.hlavicka .obal{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--pismo-nadpis);font-weight:700;font-size:1.12rem}
+.logo svg{width:34px;height:34px;flex:none}
+.menu{display:flex;gap:26px;font-size:.92rem;font-weight:600}
+.menu a{text-decoration:none;padding:8px 0}
+.menu a:hover{text-decoration:underline}
+@media (max-width:760px){.menu a:not(.menu__hlavny){display:none}}
+
+/* =========================================================
+   KOMPONENT: DYCH · jeden rytmus pre celý web
+   ========================================================= */
+@keyframes dych-jas{0%,100%{opacity:var(--dych-min,.78)}50%{opacity:1}}
+@keyframes dych-mierka{0%,100%{transform:scale(1)}50%{transform:scale(var(--dych-max,1.05))}}
+.dych-jas{animation:dych-jas var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun)}
+.dych-mierka{animation:dych-mierka var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun)}
+
+/* =========================================================
+   KOMPONENT: PODHUBIE · canvas pod obsahom
+   ========================================================= */
+#podhubie{position:absolute;left:0;top:0;width:100%;pointer-events:none;z-index:1;--dych-min:.8}
+.pas{height:clamp(90px,13vw,160px);position:relative}
+.pas--vysoky{height:clamp(120px,17vw,210px)}
+.uzol{
+  position:absolute;left:var(--x,50%);top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;z-index:2;
+  border-radius:50%;background:var(--salvia);box-shadow:0 0 0 6px rgba(142,170,147,.18);
+  transition:background-color 1.6s ease,box-shadow 1.6s ease;
+}
+.uzol.svieti{background:var(--oranz);box-shadow:0 0 0 7px rgba(255,156,0,.16),0 0 22px rgba(255,156,0,.4)}
+.tma .uzol{background:var(--salvia)}
+
+/* =========================================================
+   KOMPONENT: RAST · sekcie sa rozvinú ako papraď
+   ========================================================= */
+.paprad{width:22px;height:22px;flex:none;overflow:visible}
+.paprad path{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+@media (prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+  .js [data-rast]:not([data-rast="skupina"]),
+  .js [data-rast="skupina"]>*{
+    opacity:0;transform:translateY(22px) rotate(-.6deg);transform-origin:0 100%;
+    transition:opacity var(--rast) var(--krivka),transform var(--rast) var(--krivka);
+    transition-delay:calc(var(--i,0)*110ms);
+  }
+  .js [data-rast].vyrastene:not([data-rast="skupina"]),
+  .js [data-rast="skupina"].vyrastene>*{opacity:1;transform:none}
+  .js [data-rast="skupina"]>:nth-child(2){--i:1}
+  .js [data-rast="skupina"]>:nth-child(3){--i:2}
+  .js [data-rast="skupina"]>:nth-child(4){--i:3}
+  .js [data-rast="skupina"]>:nth-child(5){--i:4}
+  .js [data-rast="skupina"]>:nth-child(6){--i:5}
+  .js [data-rast] .paprad path{stroke-dashoffset:1;transition:stroke-dashoffset 2.2s var(--krivka) .2s}
+  .js [data-rast].vyrastene .paprad path{stroke-dashoffset:0}
+}
+
+/* =========================================================
+   KOMPONENT: FOTKA, KTORÁ SA NADÝCHNE
+   ========================================================= */
+.foto{position:relative;overflow:hidden;margin:0;border-radius:var(--r-velky);background:#27463f;aspect-ratio:var(--pomer,4/3)}
+.foto__obraz{
+  display:block;width:100%;height:100%;object-fit:cover;
+  /* zástupné miesto: Miško nahradí <div> prvkom <img class="foto__obraz"> */
+  background:
+    radial-gradient(120% 90% at 28% 105%,rgba(255,156,0,.42),transparent 60%),
+    radial-gradient(90% 80% at 82% 8%,rgba(255,230,219,.3),transparent 62%),
+    #2b4b44;
+}
+.foto__popis{display:none;  /* popisy zástupných fotiek; pri skutočných fotkách celé zmazať */
+
+  position:absolute;left:14px;bottom:14px;z-index:1;max-width:calc(100% - 28px);
+  font-size:.72rem;font-weight:600;letter-spacing:.04em;line-height:1.3;
+  color:var(--krem);background:rgba(24,53,51,.62);border:1px dashed rgba(255,251,246,.5);
+  padding:5px 10px;border-radius:8px;
+}
+@media (prefers-reduced-motion:no-preference){
+  .js .foto .foto__obraz{transition:transform 3.4s var(--krivka)}
+  .js .foto::after{content:"";position:absolute;inset:0;background:var(--les);opacity:.24;transition:opacity 3s ease;pointer-events:none}
+  .js .foto.nadych .foto__obraz{transform:scale(1.045)}
+  .js .foto.nadych::after{opacity:0}
+}
+
+/* =========================================================
+   1 · ÚVOD
+   ========================================================= */
+.uvod{position:relative;padding-block:clamp(28px,5vh,64px) clamp(16px,3vh,32px);text-align:center}
+.uvod::before{
+  content:"";position:absolute;inset:-140px 0 -60px;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 58% 62% at var(--ziara-x) var(--ziara-y),var(--ziara),transparent 70%);
+  animation:dych-jas var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun);--dych-min:.6;
+  -webkit-mask-image:linear-gradient(to bottom,#000 55%,transparent);mask-image:linear-gradient(to bottom,#000 55%,transparent);
+}
+.uvod h1{max-width:13ch;margin-inline:auto}
+/* nadpis s prechodom odtieňov: tmavé okraje, svetlejší stred */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  .uvod h1{
+    background:var(--prechod);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+    padding-bottom:.08em;   /* aby sa spodné časti písmen (j, ľ) neorezali */
+  }
+}
+@media (forced-colors:active){.uvod h1{background:none;-webkit-text-fill-color:currentColor;color:CanvasText}}
+.uvod .tagline{font-family:var(--pismo-nadpis);font-style:italic;font-size:clamp(1.15rem,2.2vw,1.5rem);line-height:1.4;margin:26px auto 0;max-width:30ch;color:var(--salvia-text)}
+.uvod .uvodny{margin:22px auto 0;max-width:46ch}
+.uvod .tlacidla{justify-content:center}
+
+/* =========================================================
+   KOMPONENT: LES V REZE · stromy a ľudia na jednej zemi, pod ňou podhubie
+   ========================================================= */
+.les{position:relative;z-index:2}
+.les__scena{position:relative;height:clamp(310px,44vh,450px);height:clamp(310px,44svh,450px);
+  background:linear-gradient(to bottom,transparent 38%,var(--les) 38%)}   /* 38 % = čiara zeme */
+.les__scena canvas{position:absolute;inset:0;width:100%;height:100%}
+.les__popis{background:var(--les);color:var(--krem);text-align:center;padding:14px 24px clamp(36px,6vw,60px)}
+.les__popis .stitok{justify-content:center;color:var(--salvia);margin-bottom:12px;max-width:none}
+.les__popis p:not(.stitok){font-family:var(--pismo-nadpis);font-size:clamp(1.15rem,2.1vw,1.5rem);line-height:1.45;max-width:36ch;margin-inline:auto}
+.les__popis strong{font-weight:600;color:var(--broskyna)}
+@media (max-height:800px) and (min-width:900px){h1{font-size:3.7rem}}
+
+/* pásik Najbližšie v úvode */
+.najblizsie{display:inline-flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px;margin-top:28px;
+  padding:12px 20px;border-radius:999px;background:var(--biela);box-shadow:var(--tien);text-decoration:none;font-size:.95rem;line-height:1.35;
+  transition:transform .35s var(--krivka)}
+.najblizsie:hover{transform:translateY(-2px)}
+.najblizsie__stitok{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--salvia-text)}
+.najblizsie__akcia{font-weight:700}
+@media (max-width:520px){.najblizsie{border-radius:20px;flex-direction:column;gap:4px}}
+
+/* =========================================================
+   2 · OHEŇ · vieme zhromaždiť ľudí
+   ========================================================= */
+.ohen{padding-bottom:0}
+.foto--sala{--pomer:21/9;width:min(100% - 24px,1400px);margin:0 auto clamp(32px,5vw,56px);z-index:2}
+@media (max-width:760px){.foto--sala{--pomer:4/3}}
+.pribeh{display:grid;gap:clamp(24px,4vw,56px);grid-template-columns:1fr;align-items:end}
+@media (min-width:900px){.pribeh{grid-template-columns:1.15fr 1fr}}
+.cislo{font-family:var(--pismo-nadpis);font-weight:600;line-height:.92;letter-spacing:-.03em;display:block}
+.cislo--velke{font-size:clamp(4.4rem,15vw,9.5rem)}
+.cislo--male{font-size:clamp(2.1rem,5vw,3.4rem)}
+.cisla{display:flex;gap:clamp(24px,5vw,56px);margin-top:22px;padding-top:22px;border-top:1px solid rgba(255,251,246,.18)}
+.cisla span:last-child,.cislo-popis{display:block;font-size:.92rem;color:var(--salvia);margin-top:6px}
+.trojica{display:grid;gap:clamp(12px,2vw,20px);grid-template-columns:repeat(3,1fr);margin-top:clamp(28px,5vw,56px)}
+@media (max-width:640px){.trojica{grid-template-columns:1fr 1fr}.trojica .foto:first-child{grid-column:1/-1;--pomer:16/9}}
+.podnadpis{font-family:var(--pismo-nadpis);font-size:clamp(1.5rem,3vw,2.1rem);font-weight:600;margin:clamp(56px,8vw,96px) 0 clamp(20px,3vw,32px)}
+.ohne .karta{background:rgba(255,251,246,.06);border:1px solid rgba(255,251,246,.12);color:var(--krem);padding:0;overflow:hidden}
+.ohne .foto{border-radius:0;--pomer:3/2}
+.ohne .karta__telo{padding:20px 22px 24px}
+@media (max-width:700px){
+  /* na mobile sa galéria posúva prstom do strany, stránka je kratšia */
+  .ohne{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin-inline:-20px;padding:4px 20px 18px;scrollbar-width:thin}
+  .ohne .karta{flex:0 0 82%;scroll-snap-align:center}
+}
+.ohne .karta p{color:rgba(255,251,246,.86)}
+.ako{margin-top:clamp(56px,8vw,96px);display:grid;gap:24px;grid-template-columns:1fr}
+@media (min-width:900px){.ako{grid-template-columns:1fr 1.3fr;gap:56px}}
+.ako h3{font-size:clamp(1.5rem,3vw,2.1rem);max-width:16ch}
+
+/* KOMPONENT: OHEŇ · žiara a uhlíky */
+.ohnisko{position:relative;height:clamp(170px,24vw,280px);margin-top:clamp(24px,4vw,48px);overflow:hidden;
+  background:radial-gradient(ellipse 62% 105% at 50% 100%,rgba(255,156,0,.3),rgba(255,156,0,.08) 48%,transparent 72%)}
+.ohnisko::before{content:"";position:absolute;left:50%;bottom:-40%;width:min(70%,560px);aspect-ratio:2/1;transform:translateX(-50%);
+  background:radial-gradient(ellipse at 50% 60%,rgba(255,200,150,.55),rgba(255,156,0,.22) 45%,transparent 70%);
+  animation:dych-jas var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun);--dych-min:.55}
+.ohnisko canvas{position:absolute;inset:0;width:100%;height:100%}
+
+/* =========================================================
+   3 · PRIPRAVUJEME
+   ========================================================= */
+.termin{font-family:var(--pismo-nadpis);font-size:clamp(1.7rem,3vw,2.2rem);font-weight:600;line-height:1;display:block;margin-bottom:6px}
+.termin-miesto{display:block;font-size:.74rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--salvia-text);margin-bottom:18px}
+.podujatie{display:flex;flex-direction:column}
+.podujatie .tl,.podujatie .cip--coskoro{margin-top:auto;align-self:flex-start}
+.podujatie p{margin-bottom:22px}
+
+/* =========================================================
+   4 · PREČO TO ROBÍME
+   ========================================================= */
+.preco{display:grid;gap:clamp(28px,5vw,64px);grid-template-columns:1fr}
+@media (min-width:900px){.preco{grid-template-columns:.8fr 1.2fr;align-items:start}.preco__foto{position:sticky;top:32px}}
+@media (max-width:899px){.preco__foto{order:2;max-width:420px}}
+.preco__foto .foto{--pomer:4/5}
+.podpis{margin-top:16px;font-size:.92rem;line-height:1.5}
+.podpis--cesta{margin-top:10px;color:var(--salvia-text)}
+.podpis strong{display:block;font-family:var(--pismo-nadpis);font-size:1.2rem}
+.citat{font-family:var(--pismo-nadpis);font-size:clamp(1.25rem,2.4vw,1.6rem);line-height:1.35;font-weight:500;margin:0}
+.preco .karta--broskyna{margin-top:32px}
+
+/* =========================================================
+   6 · STUPNE HĹBKY
+   ========================================================= */
+.stupne{display:grid;gap:16px;grid-template-columns:1fr;counter-reset:stupen;list-style:none;padding:0;margin:0}
+.stupne>li{display:flex;flex-direction:column}
+.stupne .poradie{font-family:var(--pismo-nadpis);font-style:italic;font-size:1.05rem;opacity:.75;margin-bottom:28px}
+.stupne .odkaz{margin-top:auto;padding-top:14px}
+.stupne ul{padding-left:1.1em;margin:0 0 1em;font-size:1rem;line-height:1.6}
+@media (min-width:980px){
+  .stupne{grid-template-columns:repeat(4,1fr);align-items:start}
+  .stupne>li:nth-child(2){margin-top:36px}
+  .stupne>li:nth-child(3){margin-top:72px}
+  .stupne>li:nth-child(4){margin-top:108px}
+  .stupne>li{min-height:340px}
+}
+
+/* =========================================================
+   7 · EKODEDINA · KOMPONENT: CESTA PO FÁZACH
+   ========================================================= */
+.dvojica{display:grid;gap:clamp(24px,4vw,56px);grid-template-columns:1fr}
+@media (min-width:900px){.dvojica{grid-template-columns:1fr 1fr}}
+.cesta{--faza:1;list-style:none;padding:0;margin:clamp(40px,6vw,64px) 0;position:relative;display:grid;gap:26px}
+.cesta[data-faza="2"]{--faza:2}.cesta[data-faza="3"]{--faza:3}.cesta[data-faza="4"]{--faza:4}.cesta[data-faza="5"]{--faza:5}
+.cesta::before,.cesta::after{content:"";position:absolute;left:10px;top:10px;width:2px;border-radius:2px}
+.cesta::before{bottom:10px;background:var(--salvia-hlbsia)}
+.cesta::after{height:calc((var(--faza) - .5)*20%);background:var(--les)}
+.cesta li{position:relative;padding-left:40px;font-size:.95rem;line-height:1.5}
+.cesta strong{display:block;font-family:var(--pismo-nadpis);font-size:1.2rem;line-height:1.2;margin-bottom:2px}
+.cesta__uzol{position:absolute;left:0;top:0;width:22px;height:22px;border-radius:50%;background:var(--pozadie);border:2px solid var(--salvia);z-index:1}
+.cesta li>span:last-child{color:var(--salvia-text)}
+.cesta[data-faza="1"] li:nth-child(-n+1) .cesta__uzol,
+.cesta[data-faza="2"] li:nth-child(-n+2) .cesta__uzol,
+.cesta[data-faza="3"] li:nth-child(-n+3) .cesta__uzol,
+.cesta[data-faza="4"] li:nth-child(-n+4) .cesta__uzol,
+.cesta[data-faza="5"] li:nth-child(-n+5) .cesta__uzol{background:var(--les);border-color:var(--les)}
+.cesta[data-faza="1"] li:nth-child(1) .cesta__uzol,
+.cesta[data-faza="2"] li:nth-child(2) .cesta__uzol,
+.cesta[data-faza="3"] li:nth-child(3) .cesta__uzol,
+.cesta[data-faza="4"] li:nth-child(4) .cesta__uzol,
+.cesta[data-faza="5"] li:nth-child(5) .cesta__uzol{background:var(--oranz);border-color:var(--oranz);box-shadow:0 0 0 6px rgba(255,156,0,.18)}
+.cesta[data-faza="1"] li:nth-child(1) .cesta__uzol::after,
+.cesta[data-faza="2"] li:nth-child(2) .cesta__uzol::after,
+.cesta[data-faza="3"] li:nth-child(3) .cesta__uzol::after,
+.cesta[data-faza="4"] li:nth-child(4) .cesta__uzol::after,
+.cesta[data-faza="5"] li:nth-child(5) .cesta__uzol::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:1.5px solid rgba(255,156,0,.5);
+  animation:dych-mierka var(--dych) ease-in-out infinite;animation-delay:var(--dych-posun);--dych-max:1.22}
+@media (min-width:900px){
+  .cesta{grid-template-columns:repeat(5,1fr);gap:18px}
+  .cesta::before,.cesta::after{left:10px;top:10px;height:2px;bottom:auto}
+  .cesta::before{right:10%;width:auto}
+  .cesta::after{width:calc((var(--faza) - .5)*20%)}
+  .cesta li{padding:38px 0 0}
+  .cesta li:nth-child(even){transform:translateY(10px)}
+}
+.blueprint{margin-top:clamp(36px,5vw,56px)}
+.blueprint h3{font-size:clamp(1.45rem,2.8vw,2rem);max-width:22ch;margin-bottom:16px}
+.blueprint .uvodny{max-width:60ch}
+.temy{list-style:none;padding:0;margin:6px 0 26px;display:flex;flex-wrap:wrap;gap:10px}
+.temy li{background:var(--salvia-jemna);border-radius:999px;padding:8px 16px;font-size:.92rem;font-weight:600;line-height:1.3}
+.clen{border-left:3px solid var(--salvia);padding-left:22px;margin:0}
+.clen footer{font-size:.9rem;color:var(--salvia-text);margin-top:10px}
+
+/* =========================================================
+   8 · KORENE
+   ========================================================= */
+.fakt{display:flex;flex-wrap:wrap;gap:clamp(20px,5vw,64px);margin-top:clamp(32px,5vw,56px);padding-top:28px;border-top:1px solid var(--salvia-hlbsia)}
+.fakt .cislo{font-size:clamp(2.2rem,5vw,3.4rem)}
+.fakt .cislo-popis{color:var(--salvia-text)}
+
+/* =========================================================
+   10 · SPOJME SA + pätička
+   ========================================================= */
+.spojme{padding-bottom:0}
+.formular{background:var(--krem);color:var(--les);border-radius:var(--r-velky);padding:clamp(22px,4vw,36px)}
+.formular label{display:block;font-size:.85rem;font-weight:600;margin:0 0 6px}
+.formular input[type=text],.formular input[type=email],.formular select{
+  width:100%;min-height:50px;padding:10px 14px;margin-bottom:16px;
+  font:400 1rem var(--pismo-text);color:var(--les);background:var(--biela);
+  border:1.5px solid rgba(24,53,51,.3);border-radius:12px;
+}
+.formular .suhlas{display:flex;gap:10px;align-items:flex-start;font-weight:400;font-size:.92rem;line-height:1.45;margin:4px 0 20px}
+.formular .suhlas input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--les);flex:none}
+.formular__sprava{margin-top:14px;font-size:.92rem;font-weight:600}
+.partneri{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 0;padding:0;list-style:none}
+.partneri li{border:1px solid rgba(255,251,246,.25);border-radius:12px;padding:10px 16px;font-weight:600;font-size:.92rem}
+.paticka{margin-top:clamp(56px,8vw,96px);padding-block:32px 40px;border-top:1px solid rgba(255,251,246,.16);font-size:.9rem}
+.paticka .obal{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
+.paticka .tagline{font-family:var(--pismo-nadpis);font-style:italic;font-size:1.05rem;margin:0}
+.semienko{color:var(--salvia);margin:0;font-size:.82rem}
+
+.no-js-skry{display:none}
+.js .no-js-skry{display:revert}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+/* hlavička na mobile: logo a prepínač jazykov v jednom riadku */
+.logo{white-space:nowrap}
+@media (max-width:640px){.menu{display:none}}
+@media (max-width:400px){.jazyky a{padding:0 6px}.logo{font-size:1.02rem;gap:8px}.logo svg{width:30px;height:30px}}
