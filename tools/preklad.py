@@ -45,13 +45,13 @@ PREKLADY = [
     # ---- menu ----
     ('Preskočiť na obsah', 'Přeskočit na obsah', 'Skip to content'),
     ('aria-label="Kompas Regenerácie, domov"', 'aria-label="Kompas Regenerácie, domů"', 'aria-label="Kompas Regenerácie, home"'),
-    ('aria-label="Hlavné menu"', 'aria-label="Hlavní menu"', 'aria-label="Main menu"'),
-    ('aria-label="Jazyk"', 'aria-label="Jazyk"', 'aria-label="Language"'),
-    ('<a href="#pripravujeme">Podujatia</a>', '<a href="#pripravujeme">Akce</a>', '<a href="#pripravujeme">Events</a>'),
-    ('<a href="#hlbka">Komunita</a>', '<a href="#hlbka">Komunita</a>', '<a href="#hlbka">Community</a>'),
-    ('<a href="#ekodedina">Ekodedina</a>', '<a href="#ekodedina">Ekovesnice</a>', '<a href="#ekodedina">Ecovillage</a>'),
-    ('<a href="#firmy">Pre firmy</a>', '<a href="#firmy">Pro firmy</a>', '<a href="#firmy">For companies</a>'),
-    ('href="#spojme-sa">Spojme sa</a>', 'href="#spojme-sa">Spojme se</a>', 'href="#spojme-sa">Get in touch</a>'),
+    ('aria-label="Hlavné menu"', 'aria-label="Hlavní menu"', 'aria-label="Main menu"', 2),
+    ('aria-label="Jazyk"', 'aria-label="Jazyk"', 'aria-label="Language"', 2),
+    ('<a href="#pripravujeme">Podujatia</a>', '<a href="#pripravujeme">Akce</a>', '<a href="#pripravujeme">Events</a>', 2),
+    ('<a href="#hlbka">Komunita</a>', '<a href="#hlbka">Komunita</a>', '<a href="#hlbka">Community</a>', 2),
+    ('<a href="#ekodedina">Ekodedina</a>', '<a href="#ekodedina">Ekovesnice</a>', '<a href="#ekodedina">Ecovillage</a>', 2),
+    ('<a href="#firmy">Pre firmy</a>', '<a href="#firmy">Pro firmy</a>', '<a href="#firmy">For companies</a>', 2),
+    ('href="#spojme-sa">Spojme sa</a>', 'href="#spojme-sa">Spojme se</a>', 'href="#spojme-sa">Get in touch</a>', 2),
 
     # ---- úvod ----
     ('Sme prepojení ako les. Len sme na to zabudli.', 'Jsme propojení jako les. Jen jsme na to zapomněli.', 'We are connected like a forest. We just forgot.', 2),
@@ -59,7 +59,7 @@ PREKLADY = [
     ('Kompas Regenerácie spája ľudí, ktorí chcú žiť inak, a pomáha im, aby to spolu naozaj dokázali.</p>',
      'Kompas Regenerácie spojuje lidi, kteří chtějí žít jinak, a pomáhá jim, aby to spolu opravdu dokázali.</p>',
      'Kompas Regenerácie brings together people who want to live differently and helps them make it happen, together.</p>'),
-    ('Príď na podujatie', 'Přijď na akci', 'Come to an event', 2),
+    ('Príď na podujatie', 'Přijď na akci', 'Come to an event', 3),
     ('Pridaj sa ku komunite', 'Přidej se ke komunitě', 'Join the community'),
     ('najblizsie__stitok">Pozývame<', 'najblizsie__stitok">Zveme<', 'najblizsie__stitok">Join us<'),
     ('<strong>17. 12.</strong> Gábor Maté o ADHD, online', '<strong>17. 12.</strong> Gábor Maté o ADHD, online', '<strong>17 Dec</strong> Gábor Maté on ADHD, online'),
@@ -298,7 +298,7 @@ JAZYKY = {
 def vyrob(jazyk, stlpec):
     s = open(os.path.join(KOREN, 'index.html'), encoding='utf-8').read()
     chyby = []
-    if s.count(JAZYKY_SK) != 1:
+    if s.count(JAZYKY_SK) != 2:   # v hlavičke a v mobilnom menu
         chyby.append('prepínač jazykov v index.html sa zmenil, uprav JAZYKY_SK')
     s = s.replace(JAZYKY_SK, JAZYKY[jazyk])
     for riadok in PREKLADY:

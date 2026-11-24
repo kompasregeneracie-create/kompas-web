@@ -125,7 +125,11 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
 .jazyky a{display:inline-flex;align-items:center;min-height:36px;padding:0 8px;border-radius:8px;text-decoration:none;color:var(--salvia-text)}
 .jazyky a:hover{color:var(--les)}
 .jazyky a[aria-current]{color:var(--les);background:var(--salvia-jemna)}
-.hlavicka{padding-block:20px}
+.hlavicka{padding-block:16px;position:sticky;top:0;z-index:30;
+  transition:transform .45s var(--krivka),background-color .35s ease,box-shadow .35s ease}
+.hlavicka.plava{background:var(--pozadie);box-shadow:0 1px 0 rgba(24,53,51,.08),0 8px 24px rgba(24,53,51,.06)}
+.hlavicka.skryta{transform:translateY(-100%)}
+section[id],div[id]{scroll-margin-top:84px}
 .hlavicka .obal{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--pismo-nadpis);font-weight:700;font-size:1.12rem}
 .logo svg{width:34px;height:34px;flex:none}
@@ -416,3 +420,27 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
 /* jazyk podujatia: štítok s prekladom */
 .preklad-info{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:.92rem;line-height:1.4;margin:-8px 0 22px;color:var(--salvia-text)}
 .preklad-info .cip{background:var(--broskyna);color:var(--les);letter-spacing:.06em}
+
+/* =========================================================
+   MOBILNÉ MENU · tri čiarky a vysúvací panel
+   ========================================================= */
+.menu-tl{display:none;position:relative;width:44px;height:44px;margin-right:-8px;border:0;border-radius:12px;background:transparent;color:var(--les);cursor:pointer}
+.menu-tl span{position:absolute;left:12px;right:12px;height:2px;border-radius:2px;background:currentColor;transition:transform .3s var(--krivka),opacity .2s}
+.menu-tl span:nth-child(1){top:15px}.menu-tl span:nth-child(2){top:21px}.menu-tl span:nth-child(3){top:27px}
+.menu-tl[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.menu-tl[aria-expanded="true"] span:nth-child(2){opacity:0}
+.menu-tl[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.mobilne-menu{position:absolute;left:0;right:0;top:100%;background:var(--pozadie);padding:6px clamp(20px,5vw,40px) 26px;
+  border-radius:0 0 24px 24px;box-shadow:0 18px 36px rgba(24,53,51,.14);animation:menu-dnu .35s var(--krivka)}
+.mobilne-menu[hidden]{display:none}
+.mobilne-menu nav:not(.jazyky){display:flex;flex-direction:column;margin-bottom:20px}
+.mobilne-menu nav:not(.jazyky) a{display:flex;align-items:center;min-height:54px;font-family:var(--pismo-nadpis);font-size:1.3rem;font-weight:600;text-decoration:none;border-bottom:1px solid var(--salvia-hlbsia)}
+.mobilne-menu .tl{width:100%}
+@keyframes menu-dnu{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media (max-width:640px){
+  .js .menu-tl{display:block}
+  .js .hlavicka__prava > .jazyky{display:none}   /* na mobile je prepínač jazykov v menu */
+}
+.mobilne-menu .jazyky{justify-content:center;margin-top:18px;font-size:.85rem}
+.mobilne-menu .jazyky a{min-height:44px;padding:0 14px}
+@media (min-width:641px){.mobilne-menu{display:none!important}}

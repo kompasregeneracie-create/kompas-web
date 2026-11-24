@@ -800,3 +800,46 @@
   });
 
 })();
+
+/* =========================================================
+   HLAVIČKA · pri skrolovaní nadol sa skryje, nahor sa vráti
+   MOBILNÉ MENU · tri čiarky otvoria panel s odkazmi
+   ========================================================= */
+(function(){
+  var h = document.querySelector('.hlavicka'); if(!h) return;
+  var tl = h.querySelector('.menu-tl'), panel = document.getElementById('mobilne-menu');
+  var posl = window.pageYOffset, cakaj = false;
+
+  function otvorene(){ return tl && tl.getAttribute('aria-expanded') === 'true'; }
+  function zavri(vratFokus){
+    if(!otvorene()) return;
+    tl.setAttribute('aria-expanded','false'); panel.hidden = true;
+    if(vratFokus) tl.focus();
+  }
+  function otvor(){
+    tl.setAttribute('aria-expanded','true'); panel.hidden = false;
+    h.classList.remove('skryta');
+    var prvy = panel.querySelector('a'); if(prvy) prvy.focus({preventScroll:true});
+  }
+
+  function skrol(){
+    cakaj = false;
+    var y = window.pageYOffset, dy = y - posl;
+    h.classList.toggle('plava', y > 40);
+    if(otvorene()){ posl = y; return; }
+    if(y < 120 || dy < -6) h.classList.remove('skryta');
+    else if(dy > 6) h.classList.add('skryta');
+    if(Math.abs(dy) > 6) posl = y;
+  }
+  window.addEventListener('scroll', function(){ if(!cakaj){ cakaj = true; requestAnimationFrame(skrol); } }, {passive:true});
+  // keď niekto prejde klávesnicou na hlavičku, ukáže sa
+  h.addEventListener('focusin', function(){ h.classList.remove('skryta'); });
+  skrol();
+
+  if(!tl || !panel) return;
+  tl.addEventListener('click', function(){ otvorene() ? zavri(false) : otvor(); });
+  panel.addEventListener('click', function(e){ if(e.target.closest('a')) zavri(false); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape') zavri(true); });
+  document.addEventListener('click', function(e){ if(otvorene() && !h.contains(e.target)) zavri(false); });
+  window.addEventListener('resize', function(){ if(window.innerWidth > 640) zavri(false); });
+})();
