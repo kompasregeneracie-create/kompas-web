@@ -460,14 +460,15 @@ section[id],div[id]{scroll-margin-top:84px}
 .tl--male{min-height:42px;padding:8px 18px;font-size:.9rem}
 .h3{font-size:clamp(1.35rem,2.4vw,1.7rem)}
 .mriezka--2{grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start}
-.podujatie-uvod{padding-block:clamp(28px,5vh,64px) clamp(16px,3vh,32px)}
-.podujatie-uvod__mriezka{display:grid;gap:clamp(28px,5vw,64px);align-items:center}
-@media (min-width:900px){.podujatie-uvod__mriezka{grid-template-columns:1.2fr .8fr}}
-.podujatie-uvod h1{margin-top:6px}
-.podujatie-uvod__podnadpis{font-family:var(--pismo-nadpis);font-style:italic;font-size:clamp(1.3rem,2.6vw,1.8rem);color:var(--salvia-text);margin:10px 0 22px}
-.podujatie-uvod .uvodny{margin-bottom:14px;max-width:52ch}
-.podujatie-uvod .preklad-info{margin-top:18px}
-.podujatie-uvod .foto{max-width:440px;width:100%;justify-self:center}
+.podujatie-uvod{padding-block:clamp(16px,3vh,32px) clamp(8px,2vh,16px)}
+.plagat{display:block;width:100%;height:auto;border-radius:var(--r-velky);box-shadow:var(--tien);background:#1b3533}
+.podujatie-uvod__text{margin-top:clamp(28px,4vw,44px)}
+.podujatie-uvod h1{margin-top:6px;font-size:clamp(2rem,4.6vw,3.2rem)}
+.podujatie-uvod__podnadpis{font-family:var(--pismo-nadpis);font-style:italic;font-size:clamp(1.25rem,2.4vw,1.6rem);color:var(--salvia-text);margin:8px 0 0}
+.podujatie-uvod .tlacidla{margin-top:22px}
+.podujatie-uvod .preklad-info{margin:16px 0 26px}
+.podujatie-uvod .uvodny{margin-bottom:14px}
+@media (max-width:640px){.plagat{border-radius:14px}}
 .program{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:16px}
 .program li{display:grid;gap:4px}
 .program__cas{font-family:var(--pismo-nadpis);font-weight:600;font-size:1.15rem}
@@ -478,3 +479,4 @@ section[id],div[id]{scroll-margin-top:84px}
 .formular .volba .suhlas{margin:0 0 6px}
 .stranka-podujatia h2{margin-bottom:16px}
 .stranka-podujatia .tma h2{margin-bottom:10px}
+.plagat-odkaz{display:block;border-radius:var(--r-velky)}
