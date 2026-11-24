@@ -412,3 +412,7 @@ a{color:inherit;text-underline-offset:.2em;text-decoration-thickness:1px}
 .logo{white-space:nowrap}
 @media (max-width:640px){.menu{display:none}}
 @media (max-width:400px){.jazyky a{padding:0 6px}.logo{font-size:1.02rem;gap:8px}.logo svg{width:30px;height:30px}}
+
+/* jazyk podujatia: štítok s prekladom */
+.preklad-info{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:.92rem;line-height:1.4;margin:-8px 0 22px;color:var(--salvia-text)}
+.preklad-info .cip{background:var(--broskyna);color:var(--les);letter-spacing:.06em}

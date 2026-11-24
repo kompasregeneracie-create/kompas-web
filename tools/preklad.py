@@ -80,6 +80,7 @@ PREKLADY = [
     ('Gábor Maté odpovedá naživo na otázky o ADHD. Potom pokračujeme v kruhoch s praktikmi Compassionate Inquiry.',
      'Gábor Maté odpovídá živě na otázky o ADHD. Potom pokračujeme v kruzích s praktiky Compassionate Inquiry.',
      'Gábor Maté answers questions about ADHD live. Afterwards we continue in small circles with Compassionate Inquiry practitioners.'),
+    ('V angličtine so simultánnym prekladom do slovenčiny.', 'V angličtině se simultánním překladem do slovenštiny.', 'In English, with simultaneous interpretation into Slovak.'),
     ('>Registrácia čoskoro<', '>Registrace brzy<', '>Registration opens soon<', 2),
     ('<span class="termin">Január 2027</span>', '<span class="termin">Leden 2027</span>', '<span class="termin">January 2027</span>'),
     ('<span class="termin-miesto">Bratislava a Praha</span>', '<span class="termin-miesto">Bratislava a Praha</span>', '<span class="termin-miesto">Bratislava and Prague</span>'),
