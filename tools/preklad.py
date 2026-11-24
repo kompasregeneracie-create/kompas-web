@@ -298,6 +298,7 @@ PREKLADY = [
     ('Údaje použijeme len na odpoveď a newsletter, ak si ho zaškrtneš. <a href="https://kompasregeneracie.sk/ochrana-sukromia/">Ochrana súkromia</a>',
      'Údaje použijeme jen pro odpověď a newsletter, pokud ho zaškrtneš. <a href="https://kompasregeneracie.sk/ochrana-sukromia/">Ochrana soukromí</a>',
      "We only use your details to reply, and for the newsletter if you tick it. <a href=\"https://kompasregeneracie.sk/ochrana-sukromia/\">Privacy policy (in Slovak)</a>"),
+    ('aria-label="Jazyk: slovenčina"', 'aria-label="Jazyk: čeština"', 'aria-label="Language: English"'),
     ('Tento les vyrástol zo semienka', 'Tento les vyrostl ze semínka', 'This forest grew from seed'),
 ]
 
@@ -310,7 +311,7 @@ JAZYKY = {
 def vyrob(jazyk, stlpec):
     s = open(os.path.join(KOREN, 'index.html'), encoding='utf-8').read()
     chyby = []
-    if s.count(JAZYKY_SK) != 2:   # v hlavičke a v mobilnom menu
+    if s.count(JAZYKY_SK) != 2:   # v hlavičke (počítač) a v paneli pri ikonke jazyka (mobil)
         chyby.append('prepínač jazykov v index.html sa zmenil, uprav JAZYKY_SK')
     s = s.replace(JAZYKY_SK, JAZYKY[jazyk])
     for riadok in PREKLADY:

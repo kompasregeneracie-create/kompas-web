@@ -843,3 +843,23 @@
   document.addEventListener('click', function(e){ if(otvorene() && !h.contains(e.target)) zavri(false); });
   window.addEventListener('resize', function(){ if(window.innerWidth > 640) zavri(false); });
 })();
+
+/* =========================================================
+   MOBIL · ikonka jazyka vedľa burgera otvorí malý panel SK / CZ / EN
+   ========================================================= */
+(function(){
+  var tl = document.querySelector('.jazyk-tl'), panel = document.getElementById('jazyk-panel');
+  if(!tl || !panel) return;
+  var menuTl = document.querySelector('.menu-tl');
+  function zavri(){ tl.setAttribute('aria-expanded','false'); panel.hidden = true; }
+  tl.addEventListener('click', function(e){
+    e.stopPropagation();
+    var otvor = tl.getAttribute('aria-expanded') !== 'true';
+    if(otvor && menuTl && menuTl.getAttribute('aria-expanded') === 'true') menuTl.click();
+    tl.setAttribute('aria-expanded', otvor ? 'true' : 'false'); panel.hidden = !otvor;
+  });
+  if(menuTl) menuTl.addEventListener('click', zavri);
+  document.addEventListener('click', function(e){ if(!panel.hidden && !panel.contains(e.target)) zavri(); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !panel.hidden){ zavri(); tl.focus(); } });
+  window.addEventListener('resize', function(){ if(window.innerWidth > 640) zavri(); });
+})();

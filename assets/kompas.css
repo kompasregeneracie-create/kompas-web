@@ -440,7 +440,8 @@ section[id],div[id]{scroll-margin-top:84px}
 @keyframes menu-dnu{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
 @media (max-width:640px){
   .js .menu-tl{display:block}
-  .js .hlavicka__prava > .jazyky{display:none}   /* na mobile je prepínač jazykov v menu */
+  .js .hlavicka__prava > .jazyky{display:none}   /* na mobile je prepínač jazykov pod ikonkou vedľa burgera */
+  .js .jazyk-volba{display:block}
 }
 .mobilne-menu .jazyky{justify-content:center;margin-top:18px;font-size:.85rem}
 .mobilne-menu .jazyky a{min-height:44px;padding:0 14px}
@@ -480,3 +481,16 @@ section[id],div[id]{scroll-margin-top:84px}
 .stranka-podujatia h2{margin-bottom:16px}
 .stranka-podujatia .tma h2{margin-bottom:10px}
 .plagat-odkaz{display:block;border-radius:var(--r-velky)}
+
+/* MOBIL: ikonka jazyka vedľa burgera, rovnaký rámik */
+.jazyk-volba{display:none;position:relative}
+@media (max-width:640px){.hlavicka__prava{gap:4px}}
+.jazyk-tl{position:relative;width:44px;height:44px;border:0;border-radius:12px;background:transparent;color:var(--les);cursor:pointer;display:grid;place-items:center}
+.jazyk-tl::before{content:"";position:absolute;inset:4px;border:1.5px solid currentColor;border-radius:10px}
+.jazyk-tl svg{width:20px;height:20px}
+.jazyk-tl[aria-expanded="true"]::before{background:var(--salvia-jemna)}
+.jazyk-tl svg{position:relative}
+.jazyk-panel{position:absolute;right:0;top:calc(100% + 8px);background:var(--krem);border-radius:14px;box-shadow:0 12px 32px rgba(24,53,51,.18);padding:6px;z-index:40}
+.jazyk-panel .jazyky{display:flex;flex-direction:column;gap:2px;min-width:72px}
+.jazyk-panel .jazyky a{justify-content:center;min-height:44px;padding:0 16px;font-weight:600}
+.jazyk-panel .jazyky a[aria-current="page"]{background:var(--salvia-jemna);color:var(--les)}
