@@ -8,7 +8,7 @@
 #   DEPLOY_USER  používateľ na hostingu
 #   DEPLOY_PATH  cesta ku koreňu webu (priečinok, kde je WordPress)
 #
-# Nahrávajú sa len súbory nového webu (index.html, cz/, en/, assets/).
+# Nahrávajú sa len súbory nového webu (index.html, cz/, en/, assets/, gabor-qa/).
 # Nič sa nemaže, WordPress a jeho podstránky ostávajú nedotknuté.
 name: Zverejniť na kompasregeneracie.sk
 
@@ -48,7 +48,7 @@ jobs:
         run: |
           rsync -rlvz --checksum \
             -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
-            index.html cz en assets \
+            index.html cz en assets gabor-qa \
             "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
 
       - name: Upratať kľúč
