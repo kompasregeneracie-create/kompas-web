@@ -445,3 +445,11 @@ section[id],div[id]{scroll-margin-top:84px}
 .mobilne-menu .jazyky{justify-content:center;margin-top:18px;font-size:.85rem}
 .mobilne-menu .jazyky a{min-height:44px;padding:0 14px}
 @media (min-width:641px){.mobilne-menu{display:none!important}}
+
+/* pätička: odkazy na podstránky starého webu a právne informácie */
+.paticka__odkazy{margin-top:26px;padding-top:22px;border-top:1px solid rgba(255,251,246,.12);display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.paticka__odkazy nav{display:flex;flex-wrap:wrap;gap:6px 22px}
+.paticka__odkazy a{color:var(--krem);text-decoration:none;opacity:.88;padding:6px 0}
+.paticka__odkazy a:hover{opacity:1;text-decoration:underline}
+.paticka__pravne a{font-size:.8rem;opacity:.66}
+.formular .gdpr{font-size:.82rem;line-height:1.45;margin:-6px 0 18px;color:var(--salvia-text)}

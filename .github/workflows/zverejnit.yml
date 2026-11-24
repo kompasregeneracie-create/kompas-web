@@ -1,0 +1,56 @@
+# Zverejnenie webu na kompasregeneracie.sk (hosting Hostcreators).
+# Spúšťa sa ručne: GitHub → Actions → „Zverejniť na kompasregeneracie.sk“ → Run workflow.
+# Predtým si zmenu pozri na skúšobnej adrese (GitHub Pages).
+#
+# Potrebné tajné údaje (Settings → Secrets and variables → Actions), vkladá ich Igor:
+#   DEPLOY_KEY   súkromný SSH kľúč len na nahrávanie webu
+#   DEPLOY_HOST  napr. ssh.hostcreators.sk
+#   DEPLOY_USER  používateľ na hostingu
+#   DEPLOY_PATH  cesta ku koreňu webu (priečinok, kde je WordPress)
+#
+# Nahrávajú sa len súbory nového webu (index.html, cz/, en/, assets/).
+# Nič sa nemaže, WordPress a jeho podstránky ostávajú nedotknuté.
+name: Zverejniť na kompasregeneracie.sk
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: zverejnit
+  cancel-in-progress: false
+
+jobs:
+  zverejnit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Kontrola, či sú preklady aktuálne
+        run: |
+          python3 tools/preklad.py
+          git diff --exit-code -- cz en || (echo "Česká alebo anglická verzia nie je aktuálna. Spusti python3 tools/preklad.py a ulož zmeny." && exit 1)
+
+      - name: Pripraviť SSH kľúč
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Nahrať nový web
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          rsync -rlvz --checksum \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes" \
+            index.html cz en assets \
+            "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+
+      - name: Upratať kľúč
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

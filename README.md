@@ -7,6 +7,13 @@ Nový web kompasregeneracie.sk. Zatiaľ len úvodná stránka, podstránky ostá
 - `assets/kompas.css`, `assets/kompas.js` – spoločný vzhľad a živá vrstva, bez knižníc
 - `CLAUDE.md` – pravidlá pre každého, kto web upravuje cez Claude
 
+## Ako sa zverejňuje
+
+- Každá zmena sa najprv objaví na skúšobnej adrese kompasregeneracie-create.github.io/kompas-web.
+- Na kompasregeneracie.sk ide až po ručnom spustení: Actions → „Zverejniť na kompasregeneracie.sk“ → Run workflow.
+- Nahráva sa len nový web (index.html, cz/, en/, assets/). WordPress a jeho podstránky ostávajú na hostingu nedotknuté.
+- Návrat na starý web: na hostingu odstrániť riadok `DirectoryIndex index.html index.php` z .htaccess.
+
 ## Ako sa mení
 
 Zmenu povedz Claude, ten ju urobí v tomto repozitári. Po schválení sa nahrá na hosting.

@@ -286,6 +286,16 @@ PREKLADY = [
     ('<option value="ine">Iné</option>', '<option value="ine">Jiné</option>', '<option value="ine">Other</option>'),
     ('Chcem dostávať newsletter Kompasu Regenerácie.', 'Chci dostávat newsletter Kompasu Regenerácie.', "I'd like to receive the Kompas Regenerácie newsletter."),
     ('type="submit">Odoslať</button>', 'type="submit">Odeslat</button>', 'type="submit">Send</button>'),
+    ('aria-label="Ďalšie stránky"', 'aria-label="Další stránky"', 'aria-label="More pages"'),
+    ('>Záznam konferencie s Gáborom Matém<', '>Záznam konference s Gáborem Matém<', '>Gábor Maté conference recording (SK)<'),
+    ('>Podporte nás<', '>Podpořte nás<', '>Support us (SK)<'),
+    ('aria-label="Právne informácie"', 'aria-label="Právní informace"', 'aria-label="Legal information"'),
+    ('>Ochrana súkromia</a>\n', '>Ochrana soukromí</a>\n', '>Privacy policy (SK)</a>\n'),
+    ('>Obchodné podmienky<', '>Obchodní podmínky<', '>Terms and conditions (SK)<'),
+    ('>Reklamačný poriadok<', '>Reklamační řád<', '>Complaints procedure (SK)<'),
+    ('Údaje použijeme len na odpoveď a newsletter, ak si ho zaškrtneš. <a href="https://kompasregeneracie.sk/ochrana-sukromia/">Ochrana súkromia</a>',
+     'Údaje použijeme jen pro odpověď a newsletter, pokud ho zaškrtneš. <a href="https://kompasregeneracie.sk/ochrana-sukromia/">Ochrana soukromí</a>',
+     "We only use your details to reply, and for the newsletter if you tick it. <a href=\"https://kompasregeneracie.sk/ochrana-sukromia/\">Privacy policy (in Slovak)</a>"),
     ('Tento les vyrástol zo semienka', 'Tento les vyrostl ze semínka', 'This forest grew from seed'),
 ]
 
