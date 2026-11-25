@@ -20,8 +20,8 @@ Zmenu povedz Claude, ten ju urobí v tomto repozitári. Po schválení sa nahrá
 
 ## Čo ešte chýba pred spustením
 
-- fotky (plná sála na Gáborovi, ďalšie z Gábora, Michal, prípadne minulé podujatia) a obrázok na zdieľanie 1200 × 630 px
-- odkazy na registráciu (Posledný šaman, Gábor Maté o ADHD); zatiaľ je pri nich „Registrácia čoskoro“
+- fotky (plná sála na Gaborovi, ďalšie z Gabora, Michal, prípadne minulé podujatia) a obrázok na zdieľanie 1200 × 630 px
+- odkazy na registráciu (Posledný šaman, Gabor Maté o ADHD); zatiaľ je pri nich „Registrácia čoskoro“
 - kontaktný mail a telefón, aj pre firmy
 - logo vo vysokom rozlíšení
 - napojenie formulára na SmartEmailing

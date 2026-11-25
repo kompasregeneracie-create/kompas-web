@@ -3,6 +3,7 @@
 ## Obsah
 - Texty len z Michalových podkladov. Čísla nevymýšľať a nenafukovať.
 - Píše sa „ekodedina“, nikdy „prvá ekodedina na Slovensku“.
+- Gabor Maté sa píše s krátkym „a“ (Gabor, Gabora, Gaborom), nikdy „Gábor“.
 - „My“ len pre veci, ktoré Kompas robí spolu s ľuďmi (podujatia, skupina blueprintu, ekodedina). Michalova osobná história (Deti nepočkajú, Nestrácajme čas, medzináboženské fórum) sa píše o ňom.
 - Žiadne kontrastné heslá typu „nie je to X, je to Y“. Pokojný tón, bez nátlaku a strašenia.
 - Partnerov (logá) zatiaľ neuvádzať.
