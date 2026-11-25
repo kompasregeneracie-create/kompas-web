@@ -505,7 +505,6 @@ section[id],div[id]{scroll-margin-top:84px}
 .lektor summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:1.4rem;line-height:1;color:var(--salvia-text);transition:transform .25s var(--krivka)}
 .lektor[open] summary::after{transform:translateY(-50%) rotate(45deg)}
 .lektor__meno{font-weight:600}
-.lektor__miesto{font-size:.88rem;color:var(--salvia-text)}
 .lektor p{padding:0 18px 16px;margin:0;line-height:1.6}
 .kruh-ramec{margin-top:28px}
 .kruh-ramec p{margin-bottom:12px}
