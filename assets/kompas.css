@@ -494,3 +494,20 @@ section[id],div[id]{scroll-margin-top:84px}
 .jazyk-panel .jazyky{display:flex;flex-direction:column;gap:2px;min-width:72px}
 .jazyk-panel .jazyky a{justify-content:center;min-height:44px;padding:0 16px;font-weight:600}
 .jazyk-panel .jazyky a[aria-current="page"]{background:var(--salvia-jemna);color:var(--les)}
+
+/* gabor-qa: facilitátori a rámec kruhu */
+.lektori{margin-top:30px}
+.lektori h3,.kruh-ramec h3{font-size:1.2rem;margin-bottom:12px}
+.lektori__zoznam{display:grid;gap:8px}
+.lektor{background:#fff;border-radius:14px;box-shadow:0 1px 0 rgba(24,53,51,.06)}
+.lektor summary{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:14px 48px 14px 18px;cursor:pointer;list-style:none;position:relative;min-height:48px}
+.lektor summary::-webkit-details-marker{display:none}
+.lektor summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:1.4rem;line-height:1;color:var(--salvia-text);transition:transform .25s var(--krivka)}
+.lektor[open] summary::after{transform:translateY(-50%) rotate(45deg)}
+.lektor__meno{font-weight:600}
+.lektor__miesto{font-size:.88rem;color:var(--salvia-text)}
+.lektor p{padding:0 18px 16px;margin:0;line-height:1.6}
+.kruh-ramec{margin-top:28px}
+.kruh-ramec p{margin-bottom:12px}
+.krizove-linky{margin:0;padding-left:1.1em;display:grid;gap:8px;line-height:1.55}
+.krizove-linky a{font-weight:600;color:var(--les)}
