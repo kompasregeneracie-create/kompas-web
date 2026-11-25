@@ -39,8 +39,8 @@ PREKLADY = [
     ('"url":"https://kompasregeneracie.sk/","slogan":"Smerom k regeneratívnej budúcnosti a vnútornej rovnováhe."',
      '"url":"https://kompasregeneracie.sk/cz/","slogan":"Směrem k regenerativní budoucnosti a vnitřní rovnováze."',
      '"url":"https://kompasregeneracie.sk/en/","slogan":"Towards a regenerative future and inner balance."'),
-    ('href="assets/kompas.css"', 'href="../assets/kompas.css"', 'href="../assets/kompas.css"'),
-    ('src="assets/kompas.js"', 'src="../assets/kompas.js"', 'src="../assets/kompas.js"'),
+    ('href="assets/kompas.css', 'href="../assets/kompas.css', 'href="../assets/kompas.css'),
+    ('src="assets/kompas.js', 'src="../assets/kompas.js', 'src="../assets/kompas.js'),
 
     # ---- menu ----
     ('Preskočiť na obsah', 'Přeskočit na obsah', 'Skip to content'),
@@ -329,6 +329,21 @@ def vyrob(jazyk, stlpec):
     open(os.path.join(KOREN, jazyk, 'index.html'), 'w', encoding='utf-8').write(s)
     print('hotovo:', jazyk + '/index.html')
 
+def znacka_verzie():
+    """Za odkaz na kompas.css a kompas.js pridá ?v=… podľa obsahu súboru,
+    aby prehliadače po zmene nenačítali starú verziu z pamäte."""
+    import hashlib, re
+    for subor in ('index.html', os.path.join('gabor-qa', 'index.html')):
+        cesta = os.path.join(KOREN, subor)
+        if not os.path.exists(cesta): continue
+        s = open(cesta, encoding='utf-8').read()
+        def nahrad(m):
+            obsah = open(os.path.join(KOREN, 'assets', 'kompas.' + m.group(2)), 'rb').read()
+            return m.group(1) + '?v=' + hashlib.md5(obsah).hexdigest()[:8] + '"'
+        s2 = re.sub(r'((?:href|src)="(?:\.\./)?assets/kompas\.(css|js))(?:\?v=[0-9a-f]+)?"', nahrad, s)
+        if s2 != s: open(cesta, 'w', encoding='utf-8').write(s2)
+
 if __name__ == '__main__':
+    znacka_verzie()
     vyrob('cz', 1)
     vyrob('en', 2)

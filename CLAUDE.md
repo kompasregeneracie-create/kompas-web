@@ -23,7 +23,7 @@
 - Zdroj je slovenská stránka `index.html`. Česká `cz/index.html` a anglická `en/index.html` sa nikdy neupravujú ručne.
 - Pri zmene textu: uprav `index.html`, potom príslušný riadok v `tools/preklad.py` (slovenský text musí presne sedieť) a spusti `python3 tools/preklad.py`. Skript skončí chybou, ak niektorý slovenský text nesedí, aby žiadny jazyk neostal pozadu.
 - Nový text = nový riadok v `PREKLADY` s českým aj anglickým prekladom.
-- Štýly sú v `assets/kompas.css`, živá vrstva v `assets/kompas.js`, spoločné pre všetky jazyky.
+- Štýly sú v `assets/kompas.css`, živá vrstva v `assets/kompas.js`, spoločné pre všetky jazyky. Po zmene štýlov alebo skriptu vždy spusti `python3 tools/preklad.py`, ktorý obnoví značku `?v=` pri odkazoch, aby prehliadače nebrali starú verziu z pamäte.
 - Lokálne testovať cez server (`python3 -m http.server`), lebo odkazy na `cz/` a `en/` cez file:// nefungujú.
 
 ## Postup pri zmene
